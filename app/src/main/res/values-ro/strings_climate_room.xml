@@ -27,6 +27,15 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Remediat: glisorul termostatului din fereastra de climă se bloca după prima modificare până la redeschiderea ferestrei.</item>
+        <item>Butoane noi + și − lângă glisorul termostatului. Alege pasul lor (0,1, 0,5 sau 1 grad) în setările ferestrei.</item>
+        <item>Camerele își pot afișa consumul de energie: alege senzori de putere la Energie în setările camerei, iar antetul va afișa 21°C / 45% / 440W.</item>
+        <item>Butoanele pot afișa consumul de energie la capătul rândului de stare. Un senzor PowerCalc sau senzorul de putere al aceluiași dispozitiv este sugerat automat.</item>
+        <item>Colete: elimină un colet din istoricul de urmărire și alege singur curierul când adaugi unul. Sunt oferiți toți curierii pe care Home Assistant îi poate urmări, chiar și cei care nu sunt în widget.</item>
+        <item>Widgetul de colete cunoaște acum toate cele 94 de integrări pentru colete, inclusiv DHL, UPS, FedEx, USPS, bpost și La Poste, cu siglele lor. Un colet DHL internațional nu mai este trimis la DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nou: Setări › Etichete NFC. HKI 7 citește și scrie aceleași etichete ca și aplicația oficială Home Assistant, iar o atingere oriunde în aplicație declanșează evenimentul tag_scanned pe care îl ascultă automatizările.</item>
         <item>Etichetele funcționează chiar și atunci când HKI 7 este închis: scanarea este raportată fără deschiderea aplicației, ca în aplicația oficială. Lăsați etichetele Citiți în timp ce HKI 7 este închis atunci când scrieți o etichetă; dezactivați-l pentru a scrie etichete simple pentru o gospodărie care utilizează și aplicația oficială.</item>

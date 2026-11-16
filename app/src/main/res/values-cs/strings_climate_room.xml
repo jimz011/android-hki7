@@ -27,6 +27,15 @@
         <item>Opraveny údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině, kde se čísla zobrazovala špatně nebo mohla shazovat obrazovku.</item>
         <item>Něco špatně formulovaného ve vašem jazyce? Každý jazyk je nyní jeden soubor, který můžete opravit na GitHubu, není potřeba žádný kód.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Opraveno: posuvník termostatu v okně klimatu po první změně zamrzl, dokud se okno znovu neotevřelo.</item>
+        <item>Nová tlačítka + a − vedle posuvníku termostatu. Jejich krok (0,1, 0,5 nebo 1 stupeň) zvolíte v nastavení okna.</item>
+        <item>Místnosti mohou zobrazovat spotřebu elektřiny: v nastavení místnosti vyberte senzory výkonu v části Energie a záhlaví zobrazí 21°C / 45% / 440W.</item>
+        <item>Tlačítka mohou zobrazovat spotřebu elektřiny na konci stavového řádku. Senzor PowerCalc nebo senzor výkonu stejného zařízení se navrhne automaticky.</item>
+        <item>Zásilky: odeberte zásilku z historie sledování a při přidávání si sami zvolte dopravce. Nabízejí se všichni dopravci, které Home Assistant umí sledovat, i ti, kteří nejsou ve widgetu.</item>
+        <item>Widget zásilek nyní zná všech 94 integrací zásilek, mimo jiné DHL, UPS, FedEx, USPS, bpost a La Poste, včetně log. Mezinárodní zásilka DHL se už neposílá do DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Novinka: Nastavení › NFC tagy. HKI 7 čte a zapisuje stejné značky jako oficiální aplikace Home Assistant a klepnutím kdekoli v aplikaci spustíte událost tag_scanned, kterou vaše automatizace naslouchá.</item>
         <item>Štítky fungují, i když je HKI 7 zavřený: kontrola je hlášena bez otevření aplikace, jako v oficiální aplikaci. Při psaní značky ponechejte Číst značky, když je HKI 7 zavřené; vypněte, abyste mohli psát obyčejné štítky pro domácnost, která také používá oficiální aplikaci.</item>

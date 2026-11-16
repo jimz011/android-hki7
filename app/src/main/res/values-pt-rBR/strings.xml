@@ -3966,6 +3966,15 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">Não permitido — Home Assistant não pode ser acessado diretamente no seu Wi-Fi</string>
     <string name="update_see_changes">Veja o que mudou</string>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Corrigido: o controle deslizante do termostato na janela de clima travava após a primeira alteração até a janela ser reaberta.</item>
+        <item>Novos botões + e − ao lado do controle deslizante do termostato. Escolha o passo (0,1, 0,5 ou 1 grau) nas configurações da janela.</item>
+        <item>Os cômodos podem mostrar o consumo de energia: escolha sensores de potência em Energia nas configurações do cômodo e o cabeçalho mostra 21°C / 45% / 440W.</item>
+        <item>Os botões podem mostrar o consumo de energia no fim da linha de status. Um sensor do PowerCalc, ou o sensor de potência do mesmo dispositivo, é sugerido automaticamente.</item>
+        <item>Encomendas: remova uma encomenda pelo histórico de rastreamento e escolha a transportadora ao adicionar. Todas as transportadoras que o Home Assistant consegue rastrear são oferecidas, mesmo as que não estão no widget.</item>
+        <item>O widget de encomendas agora conhece todas as 94 integrações de encomendas, incluindo DHL, UPS, FedEx, USPS, bpost e La Poste, com seus logotipos. Uma encomenda internacional da DHL não é mais enviada para a DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Novo: Configurações › Tags NFC. HKI 7 lê e grava as mesmas tags do aplicativo Home Assistant oficial, e um toque em qualquer lugar do aplicativo aciona o evento tag_scanned que suas automações escutam.</item>
         <item>As tags funcionam mesmo quando HKI 7 está fechado: a verificação é reportada sem o aplicativo abrir, como no aplicativo oficial. Deixe Ler tags enquanto HKI 7 estiver fechado ao escrever uma tag; desligue-o para escrever tags simples para uma família que também usa o aplicativo oficial.</item>
@@ -4152,4 +4161,22 @@
     <string name="settings_extra_hki_cloud_intro">Ele é executado em um pequeno complemento Home Assistant gratuito (o componente HKI 7 Cloud), disponível no armazenamento HACS. Instale-o uma vez e o aplicativo cuidará de todo o resto.</string>
     <string name="settings_extra_hki_cloud_step_install_and_restart">Instale-o e reinicie Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_search_hacs">Em Home Assistant, abra o HACS e pesquise “HKI 7 Cloud.”</string>
+    <string name="cr_button_power_usage">Consumo de energia</string>
+    <string name="cr_button_power_usage_none">Nenhum. Escolha um sensor de potência para mostrar o consumo neste botão</string>
+    <string name="cr_climate_step_auto">Termostato</string>
+    <string name="cr_climate_step_down">Diminuir temperatura alvo</string>
+    <string name="cr_climate_step_size">Passo dos botões + e −</string>
+    <string name="cr_climate_step_up">Aumentar temperatura alvo</string>
+    <string name="cr_room_energy">Energia</string>
+    <string name="cr_room_energy_summary">Sensores de potência somados e exibidos após a temperatura e a umidade</string>
+    <string name="cr_room_power_usage">Consumo de energia</string>
+    <string name="parcel_carrier_label">Transportadora</string>
+    <string name="parcel_field_country">País</string>
+    <string name="parcel_field_direction">Direção</string>
+    <string name="parcel_field_postal_code">CEP</string>
+    <string name="parcel_optional_field">%1$s (opcional)</string>
+    <string name="parcel_remove">Remover encomenda</string>
+    <string name="parcel_remove_body">Parar de rastrear %1$s na %2$s? Ela também será removida do Home Assistant.</string>
+    <string name="parcel_remove_failed">Não foi possível remover a encomenda. Tente novamente em instantes.</string>
+    <string name="parcel_remove_title">Remover esta encomenda?</string>
 </resources>

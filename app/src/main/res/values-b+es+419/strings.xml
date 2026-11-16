@@ -3966,6 +3966,15 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">No permitido: no se puede acceder a Home Assistant directamente desde tu Wi-Fi</string>
     <string name="update_see_changes">Mira lo que cambió</string>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Corregido: el control deslizante del termostato en la ventana de clima se quedaba bloqueado tras el primer cambio hasta volver a abrirla.</item>
+        <item>Nuevos botones + y − junto al control deslizante del termostato. Elige su paso (0,1, 0,5 o 1 grado) en los ajustes de la ventana.</item>
+        <item>Las habitaciones pueden mostrar su consumo eléctrico: elige sensores de potencia en Energía, en los ajustes de la habitación, y el encabezado mostrará 21°C / 45% / 440W.</item>
+        <item>Los botones pueden mostrar el consumo eléctrico al final de su línea de estado. Se sugiere automáticamente un sensor de PowerCalc o el sensor de potencia del mismo dispositivo.</item>
+        <item>Paquetes: elimina un paquete desde su historial de seguimiento y elige tú mismo el transportista al añadir uno. Se ofrecen todos los transportistas que Home Assistant puede seguir, aunque no estén en el widget.</item>
+        <item>El widget de paquetes ya conoce las 94 integraciones de paquetería, entre ellas DHL, UPS, FedEx, USPS, bpost y La Poste, con sus logotipos. Un paquete de DHL internacional ya no se envía a DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nuevo: Configuración › Etiquetas NFC. HKI 7 lee y escribe las mismas etiquetas que la aplicación oficial Home Assistant, y un toque en cualquier parte de la aplicación activa el evento tag_scanned que escuchan sus automatizaciones.</item>
         <item>Las etiquetas funcionan incluso cuando HKI 7 está cerrada: el escaneo se informa sin que se abra la aplicación, como en la aplicación oficial. Deje Leer etiquetas mientras HKI 7 esté cerrado al escribir una etiqueta; apáguelo para escribir etiquetas simples para un hogar que también usa la aplicación oficial.</item>
@@ -4152,4 +4161,22 @@
     <string name="settings_extra_hki_cloud_intro">Esto se ejecuta en un complemento pequeño y gratuito Home Assistant (el componente HKI 7 Cloud), disponible en la tienda HACS. Instálalo una vez y la aplicación se encargará de todo lo demás.</string>
     <string name="settings_extra_hki_cloud_step_install_and_restart">Instálelo y luego reinicie Home Assistant.</string>
     <string name="settings_extra_hki_cloud_step_search_hacs">En Home Assistant, abra HACS y busque "HKI 7 Cloud".</string>
+    <string name="cr_button_power_usage">Consumo eléctrico</string>
+    <string name="cr_button_power_usage_none">Ninguno. Elige un sensor de potencia para mostrar su consumo en este botón</string>
+    <string name="cr_climate_step_auto">Termostato</string>
+    <string name="cr_climate_step_down">Bajar temperatura objetivo</string>
+    <string name="cr_climate_step_size">Paso de los botones + y −</string>
+    <string name="cr_climate_step_up">Subir temperatura objetivo</string>
+    <string name="cr_room_energy">Energía</string>
+    <string name="cr_room_energy_summary">Sensores de potencia sumados y mostrados tras la temperatura y la humedad</string>
+    <string name="cr_room_power_usage">Consumo eléctrico</string>
+    <string name="parcel_carrier_label">Transportista</string>
+    <string name="parcel_field_country">País</string>
+    <string name="parcel_field_direction">Dirección</string>
+    <string name="parcel_field_postal_code">Código postal</string>
+    <string name="parcel_optional_field">%1$s (opcional)</string>
+    <string name="parcel_remove">Eliminar paquete</string>
+    <string name="parcel_remove_body">¿Dejar de seguir %1$s en %2$s? También se eliminará de Home Assistant.</string>
+    <string name="parcel_remove_failed">No se pudo eliminar el paquete. Inténtalo de nuevo en un momento.</string>
+    <string name="parcel_remove_title">¿Eliminar este paquete?</string>
 </resources>

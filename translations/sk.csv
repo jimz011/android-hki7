@@ -59,7 +59,7 @@ push_connection_channel_name,,Notification connection,Pripojenie upozornení,
 push_connection_notification_title,,Connected to Home Assistant,Pripojené k Home Assistant,don't translate Home Assistant
 push_connection_notification_text,,Listening for notifications,Počúvanie upozornení,
 parcel_title,,Parcels,Zásielky,
-parcel_generic_carrier,,Carrier,Nosič,
+parcel_generic_carrier,,Carrier,Prepravca,
 parcel_incoming,,Incoming,Prichádzajúce,
 parcel_delivered,,Delivered,Doručené,
 parcel_outgoing,,Outgoing,Odchádzajúce,
@@ -644,30 +644,30 @@ cr_quick_media_player,,Media player,Prehrávač médií,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Keď sa zobrazí rukoväť, potiahnutím nahor po spodnej lište obnovíte prehrávač.",
 cr_quick_make_it_yours,,Make it yours,Urobte to podľa seba,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","V režime úprav pridajte a zmeňte poradie miestností, poschodí a miniaplikácií. Klepnutím na položku ju nakonfigurujte.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,Zvýšiť cieľovú teplotu,
+cr_climate_step_down,,Lower target temperature,Znížiť cieľovú teplotu,
+cr_climate_step_size,,Step for the + and − buttons,Krok tlačidiel + a −,
+cr_climate_step_auto,,Thermostat,Termostat,
+cr_room_energy,,Energy,Energia,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,Senzory výkonu sa sčítajú a zobrazia za teplotou a vlhkosťou,
+cr_room_power_usage,,Power usage,Spotreba elektriny,
+cr_button_power_usage,,Power usage,Spotreba elektriny,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,"Žiadny. Vyberte senzor výkonu, aby sa jeho spotreba zobrazovala na tomto tlačidle",
+parcel_remove,,Remove parcel,Odstrániť zásielku,
+parcel_remove_title,,Remove this parcel?,Odstrániť túto zásielku?,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,Prestať sledovať %1$s u %2$s? Odstráni sa aj z Home Assistant.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,Zásielku sa nepodarilo odstrániť. Skúste to o chvíľu znova.,
+parcel_carrier_label,,Carrier,Prepravca,
+parcel_optional_field,,%1$s (optional),%1$s (voliteľné),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,PSČ,
+parcel_field_direction,,Direction,Smer,
+parcel_field_country,,Country,Krajina,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Opravené: posúvač termostatu v okne klímy po prvej zmene zamrzol, kým sa okno znova neotvorilo.",
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nové tlačidlá + a − vedľa posúvača termostatu. Ich krok (0,1, 0,5 alebo 1 stupeň) zvolíte v nastaveniach okna.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Miestnosti môžu zobrazovať spotrebu elektriny: v nastaveniach miestnosti vyberte senzory výkonu v časti Energia a hlavička zobrazí 21°C / 45% / 440W.,
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",Tlačidlá môžu zobrazovať spotrebu elektriny na konci stavového riadka. Senzor PowerCalc alebo senzor výkonu toho istého zariadenia sa navrhne automaticky.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","Zásielky: odstráňte zásielku z histórie sledovania a pri pridávaní si sami zvoľte prepravcu. Ponúkajú sa všetci prepravcovia, ktorých Home Assistant dokáže sledovať, aj tí, ktorí nie sú vo widgete.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","Widget zásielok teraz pozná všetkých 94 integrácií zásielok vrátane DHL, UPS, FedEx, USPS, bpost a La Poste aj s logami. Medzinárodná zásielka DHL sa už neposiela do DHL NL.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.","Novinka: Nastavenia › NFC tagy. HKI 7 číta a zapisuje rovnaké značky ako oficiálna aplikácia Home Assistant a klepnutie kdekoľvek v aplikácii spustí udalosť tag_scanned, ktorú vaše automatizácie počúvajú.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.","Značky fungujú, aj keď je HKI 7 zatvorený: kontrola sa nahlási bez otvorenia aplikácie, ako v oficiálnej aplikácii. Pri písaní značky ponechajte možnosť Čítať značky, kým je HKI 7 zatvorené; vypnite, aby ste mohli písať obyčajné značky pre domácnosť, ktorá tiež používa oficiálnu aplikáciu.",don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",Miniaplikácia nákupného zoznamu teraz môže zobrazovať vaše rodinné zoznamy TidyShop namiesto svojich vlastných. Každý zoznam zdieľaný s vami sa zobrazí ako karta a zaškrtnutím niečoho sa do niekoľkých sekúnd dostane zvyšok domácnosti.,

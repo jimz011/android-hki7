@@ -27,6 +27,15 @@
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Labots: klimata loga termostata slīdnis pēc pirmās izmaiņas iestrēga, līdz logs tika atvērts no jauna.</item>
+        <item>Jaunas pogas + un − blakus termostata slīdnim. To soli (0,1, 0,5 vai 1 grāds) izvēlieties loga iestatījumos.</item>
+        <item>Telpas var rādīt savu elektroenerģijas patēriņu: telpas iestatījumu sadaļā Enerģija izvēlieties jaudas sensorus, un galvenē būs redzams 21°C / 45% / 440W.</item>
+        <item>Pogas var rādīt elektroenerģijas patēriņu statusa rindas beigās. Automātiski tiek ieteikts PowerCalc sensors vai tās pašas ierīces jaudas sensors.</item>
+        <item>Sūtījumi: noņemiet sūtījumu no tā izsekošanas vēstures un, pievienojot sūtījumu, pats izvēlieties pārvadātāju. Tiek piedāvāti visi pārvadātāji, kurus Home Assistant var izsekot, arī tie, kuru nav logrīkā.</item>
+        <item>Sūtījumu logrīks tagad pazīst visas 94 sūtījumu integrācijas, tostarp DHL, UPS, FedEx, USPS, bpost un La Poste, ar to logotipiem. Starptautisks DHL sūtījums vairs netiek nosūtīts uz DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Jaunums: Iestatījumi › NFC tagi. HKI 7 lasa un raksta tos pašus atzīmes, ko oficiālā lietotne Home Assistant, un, pieskaroties jebkurā vietā lietotnē, tiek aktivizēts notikums tag_scanned, ko klausās jūsu automatizācijas.</item>
         <item>Atzīmes darbojas pat tad, ja HKI 7 ir aizvērta: skenēšana tiek ziņots, neatverot lietotni, kā tas ir oficiālajā lietotnē. Atstājiet lasīt tagus, kamēr HKI 7 ir aizvērts, rakstot atzīmi; izslēdziet to, lai rakstītu vienkāršas atzīmes mājsaimniecībai, kas izmanto arī oficiālo lietotni.</item>

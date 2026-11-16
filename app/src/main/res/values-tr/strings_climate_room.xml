@@ -578,6 +578,15 @@
         <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
         <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Düzeltildi: iklim açılır penceresindeki termostat kaydırıcısı ilk değişiklikten sonra pencere yeniden açılana kadar takılı kalıyordu.</item>
+        <item>Termostat kaydırıcısının yanında yeni + ve − düğmeleri. Adımlarını (0,1, 0,5 veya 1 derece) açılır pencere ayarlarından seçin.</item>
+        <item>Odalar güç tüketimlerini gösterebilir: oda ayarlarında Enerji altında güç sensörlerini seçin, başlık 21°C / 45% / 440W gösterir.</item>
+        <item>Düğmeler durum satırlarının sonunda güç tüketimini gösterebilir. Bir PowerCalc sensörü ya da aynı cihazdaki güç sensörü otomatik olarak önerilir.</item>
+        <item>Kargolar: bir kargoyu takip geçmişinden kaldırın ve eklerken kargo firmasını kendiniz seçin. Home Assistant’ın takip edebildiği her firma, widget’ta olmasa bile sunulur.</item>
+        <item>Kargo widget’ı artık DHL, UPS, FedEx, USPS, bpost ve La Poste dahil 94 kargo entegrasyonunun tamamını logolarıyla tanıyor. Uluslararası bir DHL kargosu artık DHL NL’ye gönderilmiyor.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Yeni: Ayarlar › NFC etiketleri. HKI 7, resmi Home Assistant uygulamasıyla aynı etiketleri okur ve yazar ve uygulamanın herhangi bir yerine dokunmak, otomasyonlarınızın dinlediği tag_scanned olayını tetikler.</item>
         <item>Etiketler HKI 7 kapalıyken bile çalışır: tarama, resmi uygulamada olduğu gibi uygulama açılmadan raporlanır. Etiket yazarken HKI 7 kapalıyken Okuma etiketlerini açık bırakın; Resmi uygulamayı da kullanan bir ev için düz etiketler yazmak için bu özelliği kapatın.</item>

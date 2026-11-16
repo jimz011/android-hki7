@@ -586,6 +586,15 @@
         <item>Correction des relevés de température et d\'énergie en tchèque, slovaque, grec, norvégien, suédois et danois, où les chiffres s\'affichaient mal ou pouvaient faire planter l\'écran.</item>
         <item>Quelque chose de mal formulé dans votre langue ? Chaque langue est désormais un fichier unique que vous pouvez corriger sur GitHub, aucun code n\'est nécessaire.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Correction : le curseur du thermostat dans la fenêtre climat se figeait après la première modification jusqu’à sa réouverture.</item>
+        <item>Nouveaux boutons + et − à côté du curseur du thermostat. Choisissez leur pas (0,1, 0,5 ou 1 degré) dans les réglages de la fenêtre.</item>
+        <item>Les pièces peuvent afficher leur consommation électrique : choisissez des capteurs de puissance sous Énergie dans les réglages de la pièce et l’en-tête affiche 21°C / 45% / 440W.</item>
+        <item>Les boutons peuvent afficher leur consommation électrique au bout de leur ligne d’état. Un capteur PowerCalc, ou le capteur de puissance du même appareil, est proposé automatiquement.</item>
+        <item>Colis : supprimez un colis depuis son historique de suivi et choisissez vous-même le transporteur lors d’un ajout. Tous les transporteurs que Home Assistant peut suivre sont proposés, même ceux absents du widget.</item>
+        <item>Le widget Colis connaît désormais les 94 intégrations de colis, dont DHL, UPS, FedEx, USPS, bpost et La Poste, avec leurs logos. Un colis DHL international n’est plus envoyé à DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nouveau : Paramètres › Balises NFC. HKI 7 lit et écrit les mêmes balises que l\'application officielle Home Assistant, et un appui n\'importe où dans l\'application déclenche l\'événement tag_scanned que vos automatisations écoutent.</item>
         <item>Les tags fonctionnent même lorsque HKI 7 est fermé : l\'analyse est signalée sans l\'ouverture de l\'application, comme dans l\'application officielle. Laissez Lire les balises pendant que HKI 7 est fermé lors de l\'écriture d\'une balise ; désactivez-le pour écrire des balises simples pour un foyer qui utilise également l\'application officielle.</item>

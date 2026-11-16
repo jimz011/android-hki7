@@ -27,6 +27,15 @@
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Ištaisyta: klimato lango termostato slankiklis po pirmo pakeitimo užstrigdavo, kol langas nebuvo atidarytas iš naujo.</item>
+        <item>Nauji mygtukai + ir − šalia termostato slankiklio. Jų žingsnį (0,1, 0,5 arba 1 laipsnis) pasirinkite lango nustatymuose.</item>
+        <item>Kambariai gali rodyti elektros suvartojimą: kambario nustatymų skiltyje Energija pasirinkite galios jutiklius, ir antraštėje bus rodoma 21°C / 45% / 440W.</item>
+        <item>Mygtukai gali rodyti elektros suvartojimą būsenos eilutės gale. PowerCalc jutiklis arba to paties įrenginio galios jutiklis pasiūlomas automatiškai.</item>
+        <item>Siuntos: pašalinkite siuntą iš jos sekimo istorijos ir pridėdami patys pasirinkite vežėją. Siūlomi visi vežėjai, kuriuos gali sekti Home Assistant, net jei jų nėra valdiklyje.</item>
+        <item>Siuntų valdiklis dabar žino visas 94 siuntų integracijas, tarp jų DHL, UPS, FedEx, USPS, bpost ir La Poste, su logotipais. Tarptautinė DHL siunta nebesiunčiama į DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Naujiena: Nustatymai › NFC žymos. HKI 7 skaito ir įrašo tas pačias žymas kaip ir oficiali Home Assistant programa, o palietimas bet kurioje programos vietoje suaktyvina įvykį tag_scanned, kurio klausosi jūsų automatizatoriai.</item>
         <item>Žymos veikia net uždarius HKI 7: apie nuskaitymą pranešama programai neatsidarius, kaip ir oficialioje programoje. Rašydami žymą palikite Skaityti žymas, kol HKI 7 uždaryta; išjunkite, kad galėtumėte rašyti paprastas žymes namų ūkiui, kuris taip pat naudoja oficialią programėlę.</item>

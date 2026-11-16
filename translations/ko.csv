@@ -628,30 +628,30 @@ cr_quick_media_player,,Media player,미디어 플레이어,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.",핸들이 나타나면 하단 바를 위로 스와이프하여 플레이어를 복원하세요.,
 cr_quick_make_it_yours,,Make it yours,나만의 화면으로 만들기,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","편집 모드에서 방, 층, 위젯을 추가하고 순서를 바꾸세요. 항목을 탭하여 구성합니다.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,목표 온도 올리기,
+cr_climate_step_down,,Lower target temperature,목표 온도 내리기,
+cr_climate_step_size,,Step for the + and − buttons,+ 및 − 버튼 단위,
+cr_climate_step_auto,,Thermostat,온도 조절기,
+cr_room_energy,,Energy,에너지,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,전력 센서를 합산하여 온도와 습도 뒤에 표시합니다,
+cr_room_power_usage,,Power usage,전력 사용량,
+cr_button_power_usage,,Power usage,전력 사용량,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,없음. 전력 센서를 선택하면 이 버튼에 사용량이 표시됩니다,
+parcel_remove,,Remove parcel,택배 삭제,
+parcel_remove_title,,Remove this parcel?,이 택배를 삭제할까요?,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,%2$s에서 %1$s 추적을 중단할까요? Home Assistant에서도 삭제됩니다.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,택배를 삭제하지 못했습니다. 잠시 후 다시 시도하세요.,
+parcel_carrier_label,,Carrier,택배사,
+parcel_optional_field,,%1$s (optional),%1$s (선택 사항),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,우편번호,
+parcel_field_direction,,Direction,방향,
+parcel_field_country,,Country,국가,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,수정됨: 기후 팝업의 온도 조절 슬라이더가 첫 변경 후 팝업을 다시 열 때까지 멈추던 문제.,
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","온도 조절 슬라이더 옆에 새로운 + 및 − 버튼이 추가되었습니다. 단위(0.1, 0.5 또는 1도)는 팝업 설정에서 선택하세요.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,방에 전력 사용량을 표시할 수 있습니다. 방 설정의 에너지에서 전력 센서를 선택하면 헤더에 21°C / 45% / 440W처럼 표시됩니다.,
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",버튼의 상태 줄 끝에 전력 사용량을 표시할 수 있습니다. PowerCalc 센서나 같은 기기의 전력 센서가 자동으로 제안됩니다.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","택배: 추적 기록에서 택배를 삭제하고, 추가할 때 택배사를 직접 선택할 수 있습니다. 위젯에 없는 택배사를 포함해 Home Assistant가 추적할 수 있는 모든 택배사가 제공됩니다.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","택배 위젯이 이제 DHL, UPS, FedEx, USPS, bpost, La Poste 등 94개 택배 통합 전체를 로고와 함께 지원합니다. 국제 DHL 택배가 더 이상 DHL NL로 전송되지 않습니다.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.","새로운 기능: 설정 › NFC 태그. HKI 7은 공식 Home Assistant 앱과 동일한 태그를 읽고 쓰며, 앱의 아무 곳이나 탭하면 자동화가 수신하는 tag_scanned 이벤트가 실행됩니다.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.",태그는 HKI 7이 닫혀 있는 동안에도 작동합니다. 공식 앱에서처럼 앱을 열지 않고도 스캔이 보고됩니다. 태그를 작성할 때 HKI 7이 닫혀 있는 동안 읽기 태그를 그대로 두십시오. 공식 앱을 사용하는 가족을 위해 일반 태그를 작성하려면 이 기능을 끄세요.,don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","이제 쇼핑 목록 위젯에 자체 목록 대신 TidyShop 가족 목록이 표시될 수 있습니다. 귀하와 공유된 모든 목록은 탭으로 표시되며, 체크 표시를 하면 몇 초 내에 나머지 가족 구성원에게 전달됩니다.",

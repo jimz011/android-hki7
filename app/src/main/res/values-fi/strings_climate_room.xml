@@ -44,6 +44,15 @@
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Korjattu: ilmastoikkunan termostaatin liukusäädin jumittui ensimmäisen muutoksen jälkeen, kunnes ikkuna avattiin uudelleen.</item>
+        <item>Uudet + ja − painikkeet termostaatin liukusäätimen vieressä. Valitse niiden askel (0,1, 0,5 tai 1 aste) ikkunan asetuksista.</item>
+        <item>Huoneet voivat näyttää sähkönkulutuksensa: valitse tehoanturit huoneen asetuksista kohdasta Energia, niin otsikossa näkyy 21°C / 45% / 440W.</item>
+        <item>Painikkeet voivat näyttää sähkönkulutuksen tilarivinsä lopussa. PowerCalc-anturia tai saman laitteen tehoanturia ehdotetaan automaattisesti.</item>
+        <item>Paketit: poista paketti sen seurantahistoriasta ja valitse kuljetusyhtiö itse, kun lisäät paketin. Kaikki Home Assistantin seuraamat kuljetusyhtiöt ovat valittavissa, myös ne, jotka eivät ole widgetissä.</item>
+        <item>Pakettiwidget tuntee nyt kaikki 94 pakettiintegraatiota, kuten DHL, UPS, FedEx, USPS, bpost ja La Poste, logoineen. Kansainvälistä DHL-pakettia ei enää lähetetä DHL NL:lle.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Uutta: Asetukset › NFC-tunnisteet. HKI 7 lukee ja kirjoittaa samat tunnisteet kuin virallinen Home Assistant-sovellus, ja napautus missä tahansa sovelluksessa käynnistää tag_scanned-tapahtuman, jota automaatiosi kuuntelevat.</item>
         <item>Tunnisteet toimivat myös silloin, kun HKI 7 on suljettu: skannaus raportoidaan ilman sovelluksen avaamista, kuten virallisessa sovelluksessa. Jätä Lue tagit, kun HKI 7 on suljettuna, kun kirjoitat tunnistetta; kytke se pois päältä kirjoittaaksesi tavallisia tunnisteita kotitaloudelle, joka käyttää myös virallista sovellusta.</item>

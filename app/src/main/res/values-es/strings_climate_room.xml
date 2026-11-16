@@ -579,6 +579,15 @@
         <item>Se corrigieron lecturas de temperatura y energía en checo, eslovaco, griego, noruego, sueco y danés, donde los números se mostraban incorrectamente o podían bloquear la pantalla.</item>
         <item>¿Algo mal redactado en tu idioma? Cada idioma ahora es un único archivo que puedes corregir en GitHub, sin necesidad de código.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Corregido: el control deslizante del termostato en la ventana de clima se quedaba bloqueado tras el primer cambio hasta volver a abrirla.</item>
+        <item>Nuevos botones + y − junto al control deslizante del termostato. Elige su paso (0,1, 0,5 o 1 grado) en los ajustes de la ventana.</item>
+        <item>Las habitaciones pueden mostrar su consumo eléctrico: elige sensores de potencia en Energía, en los ajustes de la habitación, y el encabezado mostrará 21°C / 45% / 440W.</item>
+        <item>Los botones pueden mostrar el consumo eléctrico al final de su línea de estado. Se sugiere automáticamente un sensor de PowerCalc o el sensor de potencia del mismo dispositivo.</item>
+        <item>Paquetes: elimina un paquete desde su historial de seguimiento y elige tú mismo el transportista al añadir uno. Se ofrecen todos los transportistas que Home Assistant puede seguir, aunque no estén en el widget.</item>
+        <item>El widget de paquetes ya conoce las 94 integraciones de paquetería, entre ellas DHL, UPS, FedEx, USPS, bpost y La Poste, con sus logotipos. Un paquete de DHL internacional ya no se envía a DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nuevo: Configuración › Etiquetas NFC. HKI 7 lee y escribe las mismas etiquetas que la aplicación oficial Home Assistant, y un toque en cualquier parte de la aplicación activa el evento tag_scanned que escuchan sus automatizaciones.</item>
         <item>Las etiquetas funcionan incluso cuando HKI 7 está cerrada: el escaneo se informa sin que se abra la aplicación, como en la aplicación oficial. Deje Leer etiquetas mientras HKI 7 esté cerrado al escribir una etiqueta; apáguelo para escribir etiquetas simples para un hogar que también usa la aplicación oficial.</item>

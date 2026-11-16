@@ -27,6 +27,15 @@
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Naprawiono: suwak termostatu w oknie klimatu zawieszał się po pierwszej zmianie, dopóki okno nie zostało otwarte ponownie.</item>
+        <item>Nowe przyciski + i − obok suwaka termostatu. Wybierz ich krok (0,1, 0,5 lub 1 stopień) w ustawieniach okna.</item>
+        <item>Pokoje mogą pokazywać zużycie energii: wybierz czujniki mocy w sekcji Energia w ustawieniach pokoju, a nagłówek pokaże 21°C / 45% / 440W.</item>
+        <item>Przyciski mogą pokazywać zużycie energii na końcu wiersza stanu. Czujnik PowerCalc lub czujnik mocy tego samego urządzenia jest proponowany automatycznie.</item>
+        <item>Paczki: usuń paczkę z historii śledzenia i sam wybierz przewoźnika przy dodawaniu. Dostępni są wszyscy przewoźnicy, których Home Assistant potrafi śledzić, także ci spoza widżetu.</item>
+        <item>Widżet paczek zna teraz wszystkie 94 integracje paczek, w tym DHL, UPS, FedEx, USPS, bpost i La Poste, wraz z logo. Międzynarodowa paczka DHL nie trafia już do DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nowość: Ustawienia › Tagi NFC. HKI 7 odczytuje i zapisuje te same tagi, co oficjalna aplikacja Home Assistant, a dotknięcie w dowolnym miejscu aplikacji uruchamia zdarzenie tag_scanned, którego nasłuchują Twoje automatyzacje.</item>
         <item>Tagi działają nawet wtedy, gdy HKI 7 jest zamknięty: skanowanie jest zgłaszane bez otwierania aplikacji, tak jak w oficjalnej aplikacji. Zostaw opcję Czytaj znaczniki, gdy HKI 7 jest zamknięte podczas zapisywania znacznika; wyłącz ją, aby pisać zwykłe tagi dla gospodarstwa domowego, które również korzysta z oficjalnej aplikacji.</item>

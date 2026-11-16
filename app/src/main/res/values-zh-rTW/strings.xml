@@ -3966,6 +3966,15 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>已修正：氣候彈出視窗中的恆溫器滑桿在第一次變更後卡住，直到重新開啟視窗。</item>
+        <item>恆溫器滑桿旁新增 + 和 − 按鈕。可在彈出視窗設定中選擇級距（0.1、0.5 或 1 度）。</item>
+        <item>房間可以顯示用電功率：在房間設定的「能源」中選擇功率感測器，標題會顯示 21°C / 45% / 440W。</item>
+        <item>按鈕可以在狀態列末端顯示用電功率。會自動建議 PowerCalc 感測器或同一裝置上的功率感測器。</item>
+        <item>包裹：可從追蹤記錄中移除包裹，新增時可自行選擇物流業者。Home Assistant 能追蹤的所有物流業者都會列出，包括不在小工具上的。</item>
+        <item>包裹小工具現已支援全部 94 個包裹整合，包括 DHL、UPS、FedEx、USPS、bpost 和 La Poste，並附上標誌。國際 DHL 包裹不再被送往 DHL NL。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>新功能：設定 › NFC 標籤。 HKI 7 讀取和寫入與官方 Home Assistant 應用程式相同的標籤，並且點擊應用程式中的任何位置都會觸發您的自動化偵聽的 tag_scanned 事件。</item>
         <item>即使 HKI 7 關閉，標籤也能工作：無需打開應用程式即可報告掃描，就像在官方應用程式中一樣。寫入標籤時，在 HKI 7 關閉時保留讀取標籤；將其關閉，為也使用官方應用程式的家庭編寫普通標籤。</item>
@@ -4152,4 +4161,22 @@
     <string name="settings_extra_hki_cloud_intro">它運行在一個小型的免費 Home Assistant 附加元件（HKI 7 Cloud 元件）上，可在 HACS 商店中找到。安裝一次，應用程式就會處理其他一切。</string>
     <string name="settings_extra_hki_cloud_step_install_and_restart">安裝它，然後重新啟動 Home Assistant。</string>
     <string name="settings_extra_hki_cloud_step_search_hacs">在 Home Assistant 中，開啟 HACS 並蒐索「HKI 7 Cloud」。</string>
+    <string name="cr_button_power_usage">用電功率</string>
+    <string name="cr_button_power_usage_none">無。選擇一個功率感測器，在此按鈕上顯示其用電量</string>
+    <string name="cr_climate_step_auto">恆溫器</string>
+    <string name="cr_climate_step_down">降低目標溫度</string>
+    <string name="cr_climate_step_size">+ 和 − 按鈕的級距</string>
+    <string name="cr_climate_step_up">提高目標溫度</string>
+    <string name="cr_room_energy">能源</string>
+    <string name="cr_room_energy_summary">功率感測器加總後顯示在溫度和濕度之後</string>
+    <string name="cr_room_power_usage">用電功率</string>
+    <string name="parcel_carrier_label">物流業者</string>
+    <string name="parcel_field_country">國家/地區</string>
+    <string name="parcel_field_direction">方向</string>
+    <string name="parcel_field_postal_code">郵遞區號</string>
+    <string name="parcel_optional_field">%1$s（選填）</string>
+    <string name="parcel_remove">移除包裹</string>
+    <string name="parcel_remove_body">要停止在 %2$s 追蹤 %1$s 嗎？它也會從 Home Assistant 中移除。</string>
+    <string name="parcel_remove_failed">無法移除包裹。請稍後再試。</string>
+    <string name="parcel_remove_title">要移除此包裹嗎？</string>
 </resources>

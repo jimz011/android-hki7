@@ -44,6 +44,15 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Åtgärdat: termostatreglaget i klimatfönstret fastnade efter första ändringen tills fönstret öppnades igen.</item>
+        <item>Nya knappar + och − bredvid termostatreglaget. Välj deras steg (0,1, 0,5 eller 1 grad) i fönstrets inställningar.</item>
+        <item>Rum kan visa sin strömförbrukning: välj effektsensorer under Energi i rummets inställningar så visar sidhuvudet 21°C / 45% / 440W.</item>
+        <item>Knappar kan visa strömförbrukning i slutet av statusraden. En PowerCalc-sensor, eller effektsensorn på samma enhet, föreslås automatiskt.</item>
+        <item>Paket: ta bort ett paket från dess spårningshistorik och välj transportör själv när du lägger till ett. Alla transportörer som Home Assistant kan spåra erbjuds, även de som inte finns i widgeten.</item>
+        <item>Paketwidgeten känner nu till alla 94 paketintegrationer, bland annat DHL, UPS, FedEx, USPS, bpost och La Poste, med logotyper. Ett internationellt DHL-paket skickas inte längre till DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nytt: Inställningar › NFC-taggar. HKI 7 läser och skriver samma taggar som den officiella Home Assistant-appen, och ett tryck var som helst i appen aktiverar tag_scanned-händelsen som dina automatiseringar lyssnar efter.</item>
         <item>Taggar fungerar även när HKI 7 är stängd: skanningen rapporteras utan att appen öppnas, som i den officiella appen. Lämna Läs-taggar medan HKI 7 är stängd när du skriver en tagg; stäng av den för att skriva vanliga taggar för ett hushåll som också använder den officiella appen.</item>

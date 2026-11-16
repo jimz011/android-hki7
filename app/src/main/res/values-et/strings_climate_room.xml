@@ -27,6 +27,15 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Parandatud: kliimaakna termostaadi liugur jäi pärast esimest muudatust kinni, kuni aken uuesti avati.</item>
+        <item>Uued nupud + ja − termostaadi liuguri kõrval. Vali nende samm (0,1, 0,5 või 1 kraad) akna seadetes.</item>
+        <item>Ruumid saavad näidata oma elektritarbimist: vali ruumi seadetes jaotises Energia võimsusandurid ja päis näitab 21°C / 45% / 440W.</item>
+        <item>Nupud saavad näidata elektritarbimist olekurea lõpus. PowerCalci andur või sama seadme võimsusandur pakutakse automaatselt.</item>
+        <item>Pakid: eemalda pakk selle jälgimisajaloost ja vali lisamisel vedaja ise. Pakutakse kõiki vedajaid, keda Home Assistant suudab jälgida, ka neid, keda vidinas pole.</item>
+        <item>Pakkide vidin tunneb nüüd kõiki 94 pakiintegratsiooni, sh DHL, UPS, FedEx, USPS, bpost ja La Poste, koos logodega. Rahvusvahelist DHL-i pakki enam DHL NL-ile ei saadeta.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Uus: Seaded › NFC-sildid. HKI 7 loeb ja kirjutab samu silte, mis ametlik rakendus Home Assistant ning kui puudutate kõikjal rakenduses, käivitatakse sündmus tag_scanned, mida teie automatiseeringud kuulavad.</item>
         <item>Sildid töötavad isegi siis, kui HKI 7 on suletud: skannimisest teatatakse ilma rakendust avamata, nagu ametlikus rakenduses. Jätke märgendi kirjutamisel sisselülitatud sildid, kui HKI 7 on suletud; lülitage see välja, et kirjutada lihtsaid silte leibkonna jaoks, mis kasutab ka ametlikku rakendust.</item>

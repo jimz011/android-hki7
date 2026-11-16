@@ -579,6 +579,15 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Opgelost: de thermostaatschuifregelaar in de klimaatpopup bleef na de eerste wijziging hangen tot de popup opnieuw werd geopend.</item>
+        <item>Nieuwe + en − knoppen naast de thermostaatschuifregelaar. Kies hun stapgrootte (0,1, 0,5 of 1 graad) in de popup-instellingen.</item>
+        <item>Kamers kunnen hun stroomverbruik tonen: kies vermogenssensoren onder Energie in de kamerinstellingen en de header toont 21°C / 45% / 440W.</item>
+        <item>Knoppen kunnen stroomverbruik tonen aan het einde van hun statusregel. Een PowerCalc-sensor, of de vermogenssensor van hetzelfde apparaat, wordt automatisch voorgesteld.</item>
+        <item>Pakketten: verwijder een pakket vanuit de trackinggeschiedenis en kies zelf de vervoerder bij het toevoegen. Elke vervoerder die Home Assistant kan volgen wordt aangeboden, ook als die niet op de widget staat.</item>
+        <item>De pakketwidget kent nu alle 94 pakketintegraties, waaronder DHL, UPS, FedEx, USPS, bpost en La Poste, met hun logo’s. Een wereldwijd DHL-pakket gaat niet langer naar DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nieuw: Instellingen › NFC-tags. HKI 7 leest en schrijft dezelfde tags als de officiële Home Assistant-app, en een tik ergens in de app activeert de tag_scanned-gebeurtenis waar uw automatiseringen naar luisteren.</item>
         <item>Tags werken zelfs als HKI 7 gesloten is: de scan wordt gerapporteerd zonder dat de app wordt geopend, zoals in de officiële app. Laat tags lezen staan terwijl HKI 7 gesloten is tijdens het schrijven van een tag; schakel het uit om gewone tags te schrijven voor een huishouden dat ook de officiële app gebruikt.</item>

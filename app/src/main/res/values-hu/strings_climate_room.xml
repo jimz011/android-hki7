@@ -27,6 +27,15 @@
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Javítva: a klíma felugró ablak termosztátcsúszkája az első módosítás után beragadt, amíg az ablakot újra meg nem nyitották.</item>
+        <item>Új + és − gombok a termosztátcsúszka mellett. A lépésközt (0,1, 0,5 vagy 1 fok) a felugró ablak beállításaiban választhatja ki.</item>
+        <item>A szobák megjeleníthetik az áramfogyasztásukat: válasszon teljesítményérzékelőket a szoba beállításaiban az Energia alatt, és a fejléc 21°C / 45% / 440W formában mutatja.</item>
+        <item>A gombok az állapotsoruk végén megjeleníthetik az áramfogyasztást. Egy PowerCalc érzékelőt vagy ugyanannak az eszköznek a teljesítményérzékelőjét automatikusan felajánlja.</item>
+        <item>Csomagok: távolítson el egy csomagot a követési előzményeiből, és hozzáadáskor válassza ki saját maga a futárszolgálatot. Minden futárszolgálat elérhető, amelyet a Home Assistant követni tud, akkor is, ha nincs a widgeten.</item>
+        <item>A csomag widget most már mind a 94 csomagintegrációt ismeri, köztük a DHL, UPS, FedEx, USPS, bpost és La Poste szolgáltatást, logóikkal együtt. A nemzetközi DHL-csomagok már nem a DHL NL-hez kerülnek.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Új: Beállítások › NFC-címkék. A HKI 7 ugyanazokat a címkéket olvassa és írja, mint a hivatalos Home Assistant, és az alkalmazásban bárhol megérintve aktiválja a tag_scanned eseményt, amelyre az automatizálások figyelnek.</item>
         <item>A címkék akkor is működnek, ha a HKI 7 be van zárva: a vizsgálatot az alkalmazás megnyitása nélkül jelentik, mint a hivatalos alkalmazásban. Hagyja bekapcsolva a címkék olvasását, amíg a HKI 7 zárva van a címke írásakor; kapcsolja ki, hogy egyszerű címkéket írhasson egy olyan háztartásban, amely a hivatalos alkalmazást is használja.</item>

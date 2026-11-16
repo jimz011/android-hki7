@@ -59,7 +59,7 @@ push_connection_channel_name,,Notification connection,Conexiune de notificare,
 push_connection_notification_title,,Connected to Home Assistant,Conectat la Home Assistant,don't translate Home Assistant
 push_connection_notification_text,,Listening for notifications,Ascultarea notificărilor,
 parcel_title,,Parcels,Colete,
-parcel_generic_carrier,,Carrier,Purtător,
+parcel_generic_carrier,,Carrier,Curier,
 parcel_incoming,,Incoming,Sosire,
 parcel_delivered,,Delivered,Livrat,
 parcel_outgoing,,Outgoing,Ieșire,
@@ -636,30 +636,30 @@ cr_quick_media_player,,Media player,Media player,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Când apare mânerul, glisați în sus pe bara de jos pentru a restabili playerul.",
 cr_quick_make_it_yours,,Make it yours,Fă-l al tău,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","În modul de editare, adăugați și reordonați camere, etaje și widget-uri. Atingeți un element pentru a-l configura.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,Crește temperatura țintă,
+cr_climate_step_down,,Lower target temperature,Scade temperatura țintă,
+cr_climate_step_size,,Step for the + and − buttons,Pasul butoanelor + și −,
+cr_climate_step_auto,,Thermostat,Termostat,
+cr_room_energy,,Energy,Energie,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,Senzorii de putere sunt adunați și afișați după temperatură și umiditate,
+cr_room_power_usage,,Power usage,Consum de energie,
+cr_button_power_usage,,Power usage,Consum de energie,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,Niciunul. Alege un senzor de putere pentru a-i afișa consumul pe acest buton,
+parcel_remove,,Remove parcel,Elimină coletul,
+parcel_remove_title,,Remove this parcel?,Elimini acest colet?,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,Oprești urmărirea %1$s la %2$s? Va fi eliminat și din Home Assistant.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,Coletul nu a putut fi eliminat. Încearcă din nou peste câteva momente.,
+parcel_carrier_label,,Carrier,Curier,
+parcel_optional_field,,%1$s (optional),%1$s (opțional),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,Cod poștal,
+parcel_field_direction,,Direction,Direcție,
+parcel_field_country,,Country,Țară,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Remediat: glisorul termostatului din fereastra de climă se bloca după prima modificare până la redeschiderea ferestrei.,
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Butoane noi + și − lângă glisorul termostatului. Alege pasul lor (0,1, 0,5 sau 1 grad) în setările ferestrei.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Camerele își pot afișa consumul de energie: alege senzori de putere la Energie în setările camerei, iar antetul va afișa 21°C / 45% / 440W.",
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",Butoanele pot afișa consumul de energie la capătul rândului de stare. Un senzor PowerCalc sau senzorul de putere al aceluiași dispozitiv este sugerat automat.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","Colete: elimină un colet din istoricul de urmărire și alege singur curierul când adaugi unul. Sunt oferiți toți curierii pe care Home Assistant îi poate urmări, chiar și cei care nu sunt în widget.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","Widgetul de colete cunoaște acum toate cele 94 de integrări pentru colete, inclusiv DHL, UPS, FedEx, USPS, bpost și La Poste, cu siglele lor. Un colet DHL internațional nu mai este trimis la DHL NL.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.","Nou: Setări › Etichete NFC. HKI 7 citește și scrie aceleași etichete ca și aplicația oficială Home Assistant, iar o atingere oriunde în aplicație declanșează evenimentul tag_scanned pe care îl ascultă automatizările.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.","Etichetele funcționează chiar și atunci când HKI 7 este închis: scanarea este raportată fără deschiderea aplicației, ca în aplicația oficială. Lăsați etichetele Citiți în timp ce HKI 7 este închis atunci când scrieți o etichetă; dezactivați-l pentru a scrie etichete simple pentru o gospodărie care utilizează și aplicația oficială.",don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Widgetul pentru liste de cumpărături poate afișa acum listele de familie TidyShop în loc de propriile sale. Fiecare listă partajată cu dvs. apare ca o filă, iar dacă bifați ceva, ajunge la restul gospodăriei în câteva secunde.",

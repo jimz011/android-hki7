@@ -27,6 +27,15 @@
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Ispravljeno: klizač termostata u prozoru klime zaglavio bi se nakon prve promjene dok se prozor ponovno ne otvori.</item>
+        <item>Nove tipke + i − pokraj klizača termostata. Njihov korak (0,1, 0,5 ili 1 stupanj) odaberite u postavkama prozora.</item>
+        <item>Prostorije mogu prikazivati potrošnju struje: u postavkama prostorije pod Energija odaberite senzore snage i zaglavlje će prikazati 21°C / 45% / 440W.</item>
+        <item>Tipke mogu prikazivati potrošnju struje na kraju retka stanja. Automatski se predlaže senzor PowerCalc ili senzor snage istog uređaja.</item>
+        <item>Pošiljke: uklonite pošiljku iz povijesti praćenja i sami odaberite dostavljača pri dodavanju. Nude se svi dostavljači koje Home Assistant može pratiti, čak i oni kojih nema u widgetu.</item>
+        <item>Widget za pošiljke sada poznaje sve 94 integracije za pošiljke, uključujući DHL, UPS, FedEx, USPS, bpost i La Poste, s njihovim logotipima. Međunarodna DHL pošiljka više se ne šalje u DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Novo: Postavke › NFC oznake. HKI 7 čita i piše iste oznake kao i službena aplikacija Home Assistant, a dodir bilo gdje u aplikaciji pokreće događaj tag_scanned koji vaše automatizacije slušaju.</item>
         <item>Oznake rade čak i dok je HKI 7 zatvoren: skeniranje se prijavljuje bez otvaranja aplikacije, kao u službenoj aplikaciji. Ostavite Čitanje oznaka dok je HKI 7 zatvoreno tijekom pisanja oznake; isključite ga za pisanje običnih oznaka za kućanstvo koje također koristi službenu aplikaciju.</item>

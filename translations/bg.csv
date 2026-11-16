@@ -7,7 +7,7 @@ language_selected,,Selected,Избрано,
 nav_home,,Home,Начало,
 nav_rooms,,Rooms,Стаи,
 nav_security,,Security,сигурност,
-nav_energy,,Energy,енергия,
+nav_energy,,Energy,Енергия,
 nav_climate,,Climate,Климат,
 nav_battery,,Battery,Батерия,
 nav_settings,,Settings,Настройки,
@@ -59,7 +59,7 @@ push_connection_channel_name,,Notification connection,Връзка за изве
 push_connection_notification_title,,Connected to Home Assistant,Свързан с Home Assistant,don't translate Home Assistant
 push_connection_notification_text,,Listening for notifications,Слушане за известия,
 parcel_title,,Parcels,Колети,
-parcel_generic_carrier,,Carrier,Превозвач,
+parcel_generic_carrier,,Carrier,Куриер,
 parcel_incoming,,Incoming,Входящи,
 parcel_delivered,,Delivered,Доставено,
 parcel_outgoing,,Outgoing,Изходящ,
@@ -628,30 +628,30 @@ cr_quick_media_player,,Media player,Медиен плейър,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Когато се появи манипулаторът, плъзнете нагоре по долната лента, за да възстановите плейъра.",
 cr_quick_make_it_yours,,Make it yours,Направи го твое,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","В режим на редактиране добавяйте и пренареждайте стаи, етажи и приспособления. Докоснете елемент, за да го конфигурирате.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,Повишаване на целевата температура,
+cr_climate_step_down,,Lower target temperature,Понижаване на целевата температура,
+cr_climate_step_size,,Step for the + and − buttons,Стъпка на бутоните + и −,
+cr_climate_step_auto,,Thermostat,Термостат,
+cr_room_energy,,Energy,Енергия,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,Сензорите за мощност се сумират и показват след температурата и влажността,
+cr_room_power_usage,,Power usage,Консумация на ток,
+cr_button_power_usage,,Power usage,Консумация на ток,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,"Няма. Изберете сензор за мощност, за да показва консумацията си на този бутон",
+parcel_remove,,Remove parcel,Премахване на пратката,
+parcel_remove_title,,Remove this parcel?,Премахване на тази пратка?,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,Да се спре ли проследяването на %1$s при %2$s? Тя ще бъде премахната и от Home Assistant.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,Пратката не можа да бъде премахната. Опитайте отново след малко.,
+parcel_carrier_label,,Carrier,Куриер,
+parcel_optional_field,,%1$s (optional),%1$s (по избор),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,Пощенски код,
+parcel_field_direction,,Direction,Посока,
+parcel_field_country,,Country,Държава,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Поправено: плъзгачът на термостата в прозореца за климат замръзваше след първата промяна, докато прозорецът не се отвори отново.",
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Нови бутони + и − до плъзгача на термостата. Изберете стъпката им (0,1, 0,5 или 1 градус) в настройките на прозореца.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Стаите могат да показват консумацията си на ток: изберете сензори за мощност в Енергия в настройките на стаята и заглавката ще показва 21°C / 45% / 440W.,
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",Бутоните могат да показват консумацията на ток в края на реда за състояние. Автоматично се предлага сензор от PowerCalc или сензорът за мощност на същото устройство.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","Пратки: премахнете пратка от историята на проследяване и сами изберете куриера при добавяне. Предлагат се всички куриери, които Home Assistant може да проследява, дори ако не са в джаджата.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","Джаджата за пратки вече познава всички 94 интеграции за пратки, сред които DHL, UPS, FedEx, USPS, bpost и La Poste, с техните лога. Международна пратка на DHL вече не се изпраща към DHL NL.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.","Ново: Настройки › NFC тагове. HKI 7 чете и записва същите тагове като официалното приложение Home Assistant, а докосването където и да е в приложението задейства събитието tag_scanned, което вашите автоматизации слушат.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.","Етикетите работят дори когато HKI 7 е затворен: сканирането се отчита без отваряне на приложението, както в официалното приложение. Оставете етикетите за четене, докато HKI 7 е затворен, когато пишете етикет; изключете го, за да напишете обикновени етикети за домакинство, което също използва официалното приложение.",don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Приспособлението за списък за пазаруване вече може да показва семейните ви списъци на TidyShop вместо своите собствени. Всеки списък, споделен с вас, се появява като раздел и отбелязването на нещо достига до останалата част от домакинството за секунди.",
@@ -1285,7 +1285,7 @@ dlg_navigate,,Navigate,Навигирайте,
 dlg_url,,URL,URL адрес,
 dlg_home,,Home,Начало,
 dlg_rooms,,Rooms,Стаи,
-dlg_energy,,Energy,енергия,
+dlg_energy,,Energy,Енергия,
 dlg_climate,,Climate,Климат,
 dlg_security,,Security,сигурност,
 dlg_battery,,Battery,Батерия,
@@ -1390,7 +1390,7 @@ energy_extra_battery,,Battery,Батерия,
 energy_extra_gas,,Gas,газ,
 energy_extra_city_heating,,City heating,Градско отопление,
 energy_extra_water,,Water,вода,
-energy_extra_energy,,Energy,енергия,
+energy_extra_energy,,Energy,Енергия,
 energy_extra_power,,Power,Мощност,
 energy_extra_carbon,,Carbon,въглерод,
 energy_extra_devices,,Devices,устройства,
@@ -2052,7 +2052,7 @@ ui_enable_home_assistant_backup_bd7cf62,,Enable Home Assistant backup,Актив
 ui_enable_the_features_hki_7_may_use_in_the_52e596d,,Enable the features HKI 7 may use in the background,"Активирайте функциите, които HKI 7 може да използва във фонов режим",don't translate HKI 7
 ui_enabled_e22fb09,,ENABLED,АКТИВИРАН,
 ui_end_2a002eb,,End: %1$s,Край: %1$s,app fills in %1$s — keep them
-ui_energy_437bcb1,,Energy,енергия,
+ui_energy_437bcb1,,Energy,Енергия,
 ui_energy_cards_c84abda,,Energy Cards,Енергийни карти,
 ui_energy_counters_imported_from_home_assistant_s_energy_dash_9dd23f9,,Energy counters imported from Home Assistant's Energy dashboard.,"Енергийни броячи, импортирани от енергийното табло на Home Assistant.",don't translate Home Assistant
 ui_energy_stack_cards_5ac4b4c,,Energy Stack Cards,Карти с енергиен стек,
@@ -3314,7 +3314,7 @@ settings_extra_unknown_error,,Unknown error,Неизвестна грешка,
 settings_extra_unrestricted_recommended,,Unrestricted (recommended),Неограничено (препоръчително),
 settings_extra_view_battery,,Battery,Батерия,
 settings_extra_view_climate,,Climate,Климат,
-settings_extra_view_energy,,Energy,енергия,
+settings_extra_view_energy,,Energy,Енергия,
 settings_extra_view_rooms,,Rooms,Стаи,
 settings_extra_view_security,,Security,сигурност,
 settings_extra_minutes_ago,one,%1$d minute ago,преди %1$d минути,app fills in %1$d — keep them

@@ -59,7 +59,7 @@ push_connection_channel_name,,Notification connection,Σύνδεση ειδοπ�
 push_connection_notification_title,,Connected to Home Assistant,Συνδέθηκε στο Home Assistant,don't translate Home Assistant
 push_connection_notification_text,,Listening for notifications,Ακρόαση για ειδοποιήσεις,
 parcel_title,,Parcels,Δέματα,
-parcel_generic_carrier,,Carrier,Φορέας,
+parcel_generic_carrier,,Carrier,Μεταφορική,
 parcel_incoming,,Incoming,Εισερχόμενος,
 parcel_delivered,,Delivered,Παραδόθηκε,
 parcel_outgoing,,Outgoing,Εξερχόμενος,
@@ -628,30 +628,30 @@ cr_quick_media_player,,Media player,Media player,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Όταν εμφανιστεί η λαβή, σύρετε προς τα πάνω στην κάτω γραμμή για να επαναφέρετε τη συσκευή αναπαραγωγής.",
 cr_quick_make_it_yours,,Make it yours,Κάντε το δικό σας,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","Στη λειτουργία επεξεργασίας, προσθέστε και αναδιατάξτε δωμάτια, ορόφους και γραφικά στοιχεία. Πατήστε ένα στοιχείο για να το διαμορφώσετε.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,Αύξηση θερμοκρασίας στόχου,
+cr_climate_step_down,,Lower target temperature,Μείωση θερμοκρασίας στόχου,
+cr_climate_step_size,,Step for the + and − buttons,Βήμα των κουμπιών + και −,
+cr_climate_step_auto,,Thermostat,Θερμοστάτης,
+cr_room_energy,,Energy,Ενέργεια,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,Οι αισθητήρες ισχύος αθροίζονται και εμφανίζονται μετά τη θερμοκρασία και την υγρασία,
+cr_room_power_usage,,Power usage,Κατανάλωση ρεύματος,
+cr_button_power_usage,,Power usage,Κατανάλωση ρεύματος,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,Κανένας. Επιλέξτε αισθητήρα ισχύος για να εμφανίζεται η κατανάλωσή του σε αυτό το κουμπί,
+parcel_remove,,Remove parcel,Αφαίρεση δέματος,
+parcel_remove_title,,Remove this parcel?,Αφαίρεση αυτού του δέματος;,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,Διακοπή παρακολούθησης του %1$s στην %2$s; Θα αφαιρεθεί και από το Home Assistant.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,Δεν ήταν δυνατή η αφαίρεση του δέματος. Δοκιμάστε ξανά σε λίγο.,
+parcel_carrier_label,,Carrier,Μεταφορική,
+parcel_optional_field,,%1$s (optional),%1$s (προαιρετικό),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,Ταχυδρομικός κώδικας,
+parcel_field_direction,,Direction,Κατεύθυνση,
+parcel_field_country,,Country,Χώρα,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Διορθώθηκε: το ρυθμιστικό του θερμοστάτη στο αναδυόμενο παράθυρο κλίματος κολλούσε μετά την πρώτη αλλαγή μέχρι να ανοίξει ξανά το παράθυρο.,
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Νέα κουμπιά + και − δίπλα στο ρυθμιστικό του θερμοστάτη. Επιλέξτε το βήμα τους (0,1, 0,5 ή 1 βαθμός) στις ρυθμίσεις του παραθύρου.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Τα δωμάτια μπορούν να εμφανίζουν την κατανάλωση ρεύματος: επιλέξτε αισθητήρες ισχύος στην Ενέργεια στις ρυθμίσεις του δωματίου και η κεφαλίδα θα δείχνει 21°C / 45% / 440W.,
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",Τα κουμπιά μπορούν να εμφανίζουν την κατανάλωση ρεύματος στο τέλος της γραμμής κατάστασης. Προτείνεται αυτόματα ένας αισθητήρας PowerCalc ή ο αισθητήρας ισχύος της ίδιας συσκευής.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","Δέματα: αφαιρέστε ένα δέμα από το ιστορικό παρακολούθησης και επιλέξτε μόνοι σας τη μεταφορική κατά την προσθήκη. Προσφέρονται όλες οι μεταφορικές που μπορεί να παρακολουθεί το Home Assistant, ακόμη και όσες δεν είναι στο widget.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","Το widget δεμάτων γνωρίζει πλέον και τις 94 ενσωματώσεις δεμάτων, όπως DHL, UPS, FedEx, USPS, bpost και La Poste, με τα λογότυπά τους. Ένα διεθνές δέμα DHL δεν στέλνεται πλέον στην DHL NL.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.",Νέο: Ρυθμίσεις › Ετικέτες NFC. Το HKI 7 διαβάζει και γράφει τις ίδιες ετικέτες με την επίσημη εφαρμογή Home Assistant και ένα πάτημα οπουδήποτε στην εφαρμογή ενεργοποιεί το συμβάν tag_scanned που ακούνε οι αυτοματισμοί σας.,"don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.","Οι ετικέτες λειτουργούν ακόμη και όταν το HKI 7 είναι κλειστό: η σάρωση αναφέρεται χωρίς άνοιγμα της εφαρμογής, όπως στην επίσημη εφαρμογή. Αφήστε τις ετικέτες Ανάγνωση ενώ το HKI 7 είναι κλειστό όταν γράφετε μια ετικέτα. απενεργοποιήστε το για να γράψετε απλές ετικέτες για ένα νοικοκυριό που χρησιμοποιεί επίσης την επίσημη εφαρμογή.",don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.",Το γραφικό στοιχείο της λίστας αγορών μπορεί πλέον να εμφανίζει τις οικογενειακές σας λίστες TidyShop αντί τις δικές του. Κάθε λίστα που μοιράζεστε μαζί σας εμφανίζεται ως καρτέλα και επιλέγοντας κάτι φτάνει στο υπόλοιπο νοικοκυριό μέσα σε δευτερόλεπτα.,

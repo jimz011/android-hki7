@@ -644,30 +644,30 @@ cr_quick_media_player,,Media player,Медиаплеер,
 cr_quick_media_player_instruction,,"When the handle appears, swipe up on the bottom bar to restore the player.","Когда появится ручка, проведите пальцем вверх по нижней панели, чтобы восстановить проигрыватель.",
 cr_quick_make_it_yours,,Make it yours,Сделайте это своим,
 cr_quick_make_it_yours_instruction,,"In edit mode, add and reorder rooms, floors, and widgets. Tap an item to configure it.","В режиме редактирования добавляйте и меняйте порядок комнат, этажей и виджетов. Коснитесь элемента, чтобы настроить его.",
-cr_climate_step_up,,Raise target temperature,,needs translation
-cr_climate_step_down,,Lower target temperature,,needs translation
-cr_climate_step_size,,Step for the + and − buttons,,needs translation
-cr_climate_step_auto,,Thermostat,,needs translation
-cr_room_energy,,Energy,,needs translation
-cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,,needs translation
-cr_room_power_usage,,Power usage,,needs translation
-cr_button_power_usage,,Power usage,,needs translation
-cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,,needs translation
-parcel_remove,,Remove parcel,,needs translation
-parcel_remove_title,,Remove this parcel?,,needs translation
-parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,,needs translation; app fills in %1$s %2$s — keep them; don't translate Home Assistant
-parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,,needs translation
-parcel_carrier_label,,Carrier,,needs translation
-parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s — keep them
-parcel_field_postal_code,,Postal code,,needs translation
-parcel_field_direction,,Direction,,needs translation
-parcel_field_country,,Country,,needs translation
-cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
-cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
-cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
-cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",,needs translation
-cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.",,needs translation; don't translate Home Assistant
-cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.",,needs translation
+cr_climate_step_up,,Raise target temperature,Повысить целевую температуру,
+cr_climate_step_down,,Lower target temperature,Понизить целевую температуру,
+cr_climate_step_size,,Step for the + and − buttons,Шаг кнопок + и −,
+cr_climate_step_auto,,Thermostat,Термостат,
+cr_room_energy,,Energy,Энергия,
+cr_room_energy_summary,,Power sensors added up and shown after temperature and humidity,Датчики мощности суммируются и показываются после температуры и влажности,
+cr_room_power_usage,,Power usage,Потребление электроэнергии,
+cr_button_power_usage,,Power usage,Потребление электроэнергии,
+cr_button_power_usage_none,,None. Pick a power sensor to show its usage on this button,"Нет. Выберите датчик мощности, чтобы показывать его потребление на этой кнопке",
+parcel_remove,,Remove parcel,Удалить посылку,
+parcel_remove_title,,Remove this parcel?,Удалить эту посылку?,
+parcel_remove_body,,Stop tracking %1$s with %2$s? It is removed from Home Assistant too.,Прекратить отслеживание %1$s в %2$s? Она также будет удалена из Home Assistant.,app fills in %1$s %2$s — keep them; don't translate Home Assistant
+parcel_remove_failed,,The parcel could not be removed. Try again in a moment.,Не удалось удалить посылку. Повторите попытку чуть позже.,
+parcel_carrier_label,,Carrier,Перевозчик,
+parcel_optional_field,,%1$s (optional),%1$s (необязательно),app fills in %1$s — keep them
+parcel_field_postal_code,,Postal code,Почтовый индекс,
+parcel_field_direction,,Direction,Направление,
+parcel_field_country,,Country,Страна,
+cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Исправлено: ползунок термостата в окне климата зависал после первого изменения, пока окно не открывали заново.",
+cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Новые кнопки + и − рядом с ползунком термостата. Шаг (0,1, 0,5 или 1 градус) выбирается в настройках окна.",
+cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Комнаты могут показывать потребление электроэнергии: выберите датчики мощности в разделе Энергия настроек комнаты, и в заголовке появится 21°C / 45% / 440W.",
+cr_whats_new_1_3_1,4,"Buttons can show power usage at the end of their state line. A PowerCalc sensor, or the power sensor on the same device, is suggested automatically.",Кнопки могут показывать потребление электроэнергии в конце строки состояния. Датчик PowerCalc или датчик мощности того же устройства предлагается автоматически.,
+cr_whats_new_1_3_1,5,"Parcels: remove a parcel from its tracking history, and choose the carrier yourself when adding one. Every carrier Home Assistant can track is offered, including ones not on the widget.","Посылки: удаляйте посылку из истории отслеживания и сами выбирайте перевозчика при добавлении. Предлагаются все перевозчики, которых может отслеживать Home Assistant, даже если их нет в виджете.",don't translate Home Assistant
+cr_whats_new_1_3_1,6,"The parcel widget now knows all 94 parcel integrations, including DHL, UPS, FedEx, USPS, bpost and La Poste, with their logos. A global DHL parcel is no longer sent to DHL NL.","Виджет посылок теперь знает все 94 интеграции посылок, включая DHL, UPS, FedEx, USPS, bpost и La Poste, с их логотипами. Международная посылка DHL больше не отправляется в DHL NL.",
 cr_whats_new_1_3_0,1,"New: Settings › NFC tags. HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.","Новое: Настройки › NFC-теги. HKI 7 считывает и записывает те же теги, что и официальное приложение Home Assistant, а нажатие в любом месте приложения запускает событие tag_scanned, которое прослушивают ваши средства автоматизации.","don't translate Home Assistant, HKI 7"
 cr_whats_new_1_3_0,2,"Tags work even while HKI 7 is closed: the scan is reported without the app opening, as in the official app. Leave Read tags while HKI 7 is closed on when writing a tag; switch it off to write plain tags for a household that also uses the official app.","Теги работают даже при закрытом HKI 7: о сканировании сообщается без открытия приложения, как в официальном приложении. Оставлять теги Read, пока HKI 7 закрыт при записи тега; выключите его, чтобы писать простые теги для семьи, которая также использует официальное приложение.",don't translate HKI 7
 cr_whats_new_1_3_0,3,"The shopping list widget can now show your TidyShop family lists instead of its own. Every list shared with you appears as a tab, and ticking something off reaches the rest of the household within seconds.","Виджет списка покупок теперь может отображать ваши семейные списки TidyShop вместо собственных. Каждый список, которым вы поделились, отображается в виде вкладки, и отметка чего-либо становится доступной остальным членам семьи в течение нескольких секунд.",

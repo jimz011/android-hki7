@@ -27,6 +27,15 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Rettet: termostatskyderen i klimavinduet låste sig efter første ændring, indtil vinduet blev åbnet igen.</item>
+        <item>Nye knapper + og − ved siden af termostatskyderen. Vælg deres trin (0,1, 0,5 eller 1 grad) i vinduets indstillinger.</item>
+        <item>Rum kan vise deres strømforbrug: vælg effektsensorer under Energi i rummets indstillinger, så viser overskriften 21°C / 45% / 440W.</item>
+        <item>Knapper kan vise strømforbrug i slutningen af deres statuslinje. En PowerCalc-sensor eller effektsensoren på samme enhed foreslås automatisk.</item>
+        <item>Pakker: fjern en pakke fra dens sporingshistorik, og vælg selv fragtfirma, når du tilføjer en. Alle fragtfirmaer, som Home Assistant kan spore, tilbydes, også dem der ikke er på widgetten.</item>
+        <item>Pakkewidgetten kender nu alle 94 pakkeintegrationer, blandt andet DHL, UPS, FedEx, USPS, bpost og La Poste, med logoer. En international DHL-pakke sendes ikke længere til DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Nyt: Indstillinger › NFC-tags. HKI 7 læser og skriver de samme tags som den officielle Home Assistant-app, og et tryk hvor som helst i appen udløser tag_scanned-hændelsen, som dine automatiseringer lytter efter.</item>
         <item>Tags fungerer, selv mens HKI 7 er lukket: scanningen rapporteres uden at appen åbner, som i den officielle app. Forlad Læs tags, mens HKI 7 er lukket til, når du skriver et tag; slå den fra for at skrive almindelige tags til en husstand, der også bruger den officielle app.</item>

@@ -579,6 +579,15 @@
         <item>Risolti i problemi relativi alle letture di temperatura ed energia in ceco, slovacco, greco, norvegese, svedese e danese, in cui i numeri venivano visualizzati in modo errato o potevano mandare in crash lo schermo.</item>
         <item>Qualcosa espresso male nella tua lingua? Ogni lingua ora è un singolo file che puoi correggere su GitHub, senza bisogno di codice.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>Risolto: il cursore del termostato nel popup clima si bloccava dopo la prima modifica finché il popup non veniva riaperto.</item>
+        <item>Nuovi pulsanti + e − accanto al cursore del termostato. Scegli il loro passo (0,1, 0,5 o 1 grado) nelle impostazioni del popup.</item>
+        <item>Le stanze possono mostrare il loro consumo elettrico: scegli i sensori di potenza in Energia nelle impostazioni della stanza e l’intestazione mostrerà 21°C / 45% / 440W.</item>
+        <item>I pulsanti possono mostrare il consumo elettrico alla fine della riga di stato. Viene suggerito automaticamente un sensore PowerCalc o il sensore di potenza dello stesso dispositivo.</item>
+        <item>Pacchi: rimuovi un pacco dalla sua cronologia di tracciamento e scegli tu il corriere quando ne aggiungi uno. Vengono proposti tutti i corrieri che Home Assistant può tracciare, anche quelli non presenti nel widget.</item>
+        <item>Il widget Pacchi ora conosce tutte le 94 integrazioni per pacchi, tra cui DHL, UPS, FedEx, USPS, bpost e La Poste, con i loro loghi. Un pacco DHL internazionale non viene più inviato a DHL NL.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>Novità: Impostazioni › Tag NFC. HKI 7 legge e scrive gli stessi tag dell\'app Home Assistant ufficiale e un tocco in qualsiasi punto dell\'app attiva l\'evento tag_scanned ascoltato dalle tue automazioni.</item>
         <item>I tag funzionano anche mentre HKI 7 è chiuso: la scansione viene segnalata senza l\'apertura dell\'app, come nell\'app ufficiale. Lascia i tag di lettura mentre HKI 7 è chiuso durante la scrittura di un tag; disattivalo per scrivere tag semplici per una famiglia che utilizza anche l\'app ufficiale.</item>

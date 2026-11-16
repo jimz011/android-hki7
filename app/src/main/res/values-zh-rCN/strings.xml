@@ -3921,6 +3921,15 @@
     <string name="settings_local_network_allowed">允许</string>
     <string name="settings_local_network_not_allowed">不允许 — 无法通过您的 Wi-Fi 直接访问 Home Assistant</string>
     <string name="update_see_changes">看看发生了什么变化</string>
+    <string-array name="cr_whats_new_1_3_1">
+        <item>已修复：气候弹窗中的恒温器滑块在第一次更改后卡住，直到重新打开弹窗。</item>
+        <item>恒温器滑块旁新增 + 和 − 按钮。可在弹窗设置中选择步长（0.1、0.5 或 1 度）。</item>
+        <item>房间可以显示用电功率：在房间设置的“能源”中选择功率传感器，标题会显示 21°C / 45% / 440W。</item>
+        <item>按钮可以在状态行末尾显示用电功率。会自动推荐 PowerCalc 传感器或同一设备上的功率传感器。</item>
+        <item>包裹：可从跟踪记录中删除包裹，添加时可自行选择快递公司。Home Assistant 能跟踪的所有快递公司都会列出，包括不在小组件上的。</item>
+        <item>包裹小组件现已支持全部 94 个包裹集成，包括 DHL、UPS、FedEx、USPS、bpost 和 La Poste，并带有其标志。国际 DHL 包裹不再被发送到 DHL NL。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_0">
         <item>新功能：设置 › NFC 标签。 HKI 7 reads and writes the same tags as the official Home Assistant app, and a tap anywhere in the app fires the tag_scanned event your automations listen for.</item>
         <item>即使 HKI 7 关闭，标签也能工作：无需打开应用程序即可报告扫描，就像在官方应用程序中一样。写入标签时，在 HKI 7 关闭时保留读取标签；将其关闭，为也使用官方应用程序的家庭编写普通标签。</item>
@@ -4107,4 +4116,22 @@
     <string name="settings_extra_hki_cloud_intro">它运行在一个小型的免费 Home Assistant 附加组件（HKI 7 Cloud 组件）上，可在 HACS 商店中找到。安装一次，应用程序就会处理其他一切。</string>
     <string name="settings_extra_hki_cloud_step_install_and_restart">安装它，然后重新启动 Home Assistant。</string>
     <string name="settings_extra_hki_cloud_step_search_hacs">在 Home Assistant 中，打开 HACS 并搜索“HKI 7 Cloud”。</string>
+    <string name="cr_button_power_usage">用电功率</string>
+    <string name="cr_button_power_usage_none">无。选择一个功率传感器，在此按钮上显示其用电量</string>
+    <string name="cr_climate_step_auto">恒温器</string>
+    <string name="cr_climate_step_down">降低目标温度</string>
+    <string name="cr_climate_step_size">+ 和 − 按钮的步长</string>
+    <string name="cr_climate_step_up">提高目标温度</string>
+    <string name="cr_room_energy">能源</string>
+    <string name="cr_room_energy_summary">功率传感器相加后显示在温度和湿度之后</string>
+    <string name="cr_room_power_usage">用电功率</string>
+    <string name="parcel_carrier_label">快递公司</string>
+    <string name="parcel_field_country">国家/地区</string>
+    <string name="parcel_field_direction">方向</string>
+    <string name="parcel_field_postal_code">邮政编码</string>
+    <string name="parcel_optional_field">%1$s（可选）</string>
+    <string name="parcel_remove">删除包裹</string>
+    <string name="parcel_remove_body">停止在 %2$s 跟踪 %1$s？它也会从 Home Assistant 中删除。</string>
+    <string name="parcel_remove_failed">无法删除包裹。请稍后再试。</string>
+    <string name="parcel_remove_title">删除此包裹？</string>
 </resources>
