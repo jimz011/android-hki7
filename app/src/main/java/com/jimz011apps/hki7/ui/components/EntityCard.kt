@@ -282,6 +282,8 @@ fun EntityCard(
     displayName: String? = null,
     stateAttribute: String? = null,
     stateUnit: String? = null,
+    /** Power usage ("300W") drawn at the far end of the state line, opposite the state. */
+    powerText: String? = null,
     stateAsTimer: Boolean = false,
     // Gated by the caller from an optional machine-state entity: false suppresses the countdown even
     // if the completion timestamp is in the future (the appliance isn't actually running).
@@ -459,7 +461,13 @@ fun EntityCard(
                 if (!iconOnly) {
                     Column(Modifier.weight(1f)) {
                         Text(name, style = MaterialTheme.typography.labelLarge, color = mainColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        if (!isActionItem) Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        if (!isActionItem) Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(statusText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                            if (powerText != null) {
+                                Spacer(Modifier.weight(1f).widthIn(min = 8.dp))
+                                Text(powerText, style = MaterialTheme.typography.bodySmall, color = secondaryColor, maxLines = 1)
+                            }
+                        }
                     }
                     Icon(Icons.Default.ChevronRight, null, tint = secondaryColor.copy(alpha = 0.85f), modifier = Modifier.size(16.dp))
                 }
@@ -701,20 +709,29 @@ fun EntityCard(
                         )
                         Spacer(Modifier.width(5.dp))
                     }
+                    val stateColor = when {
+                        isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
+                        isLockDoorOpen  -> primaryContent.copy(alpha = 0.75f)
+                        isLockUnlocked  -> primaryContent.copy(alpha = 0.75f)
+                        isUnavailable   -> unavailableStateColor
+                        isActive || isClimateNotOff -> activeContent.copy(alpha = 0.68f)
+                        else            -> appColors.onMuted
+                    }
                     if (!isActionItem) Text(
                         text = statusText,
                         style = MaterialTheme.typography.labelMedium,
-                        color = when {
-                            isCoverNotClosed -> primaryContent.copy(alpha = 0.75f)
-                            isLockDoorOpen  -> primaryContent.copy(alpha = 0.75f)
-                            isLockUnlocked  -> primaryContent.copy(alpha = 0.75f)
-                            isUnavailable   -> unavailableStateColor
-                            isActive || isClimateNotOff -> activeContent.copy(alpha = 0.68f)
-                            else            -> appColors.onMuted
-                        },
+                        color = stateColor,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = if (powerText != null && !centered) Modifier.weight(1f, fill = false) else Modifier
                     )
+                    // Power sits at the opposite end of the state line, inside the same padding, so
+                    // "On - 80%" stays left and "300W" lines up with the button's right edge.
+                    if (!isActionItem && powerText != null) {
+                        if (centered) Text(" · ", style = MaterialTheme.typography.labelMedium, color = stateColor)
+                        else Spacer(Modifier.weight(1f).widthIn(min = 8.dp))
+                        Text(powerText, style = MaterialTheme.typography.labelMedium, color = stateColor, maxLines = 1)
+                    }
                 }
             }
             }

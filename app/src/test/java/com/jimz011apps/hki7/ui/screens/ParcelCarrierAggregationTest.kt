@@ -281,12 +281,15 @@ class ParcelCarrierAggregationTest {
 
     @Test
     fun `manual tracking services match current integration contracts`() {
-        assertEquals(
-            setOf("gls", "dragonfly", "cainiao", "correos", "packeta", "hermes", "trunkrs"),
-            TRACK_PARCEL_DOMAINS
-        )
-        assertEquals(setOf("gls", "trunkrs"), TRACK_PARCEL_POSTCODE_DOMAINS)
-        assertFalse("vinted_go" in TRACK_PARCEL_DOMAINS)
+        // Account-based carriers have no manual add; the rest all do (services.yaml, Nov 2026).
+        listOf("postnl", "dhl_nl", "dpd", "vinted_go", "amazon_orders", "parcel_aggregator").forEach {
+            assertFalse(it, it in TRACK_PARCEL_DOMAINS)
+        }
+        listOf("gls", "dhl", "ups", "fedex", "usps", "dragonfly", "trunkrs", "fourpx").forEach {
+            assertTrue(it, it in TRACK_PARCEL_DOMAINS)
+        }
+        assertTrue(TRACK_PARCEL_DOMAINS.all { it in PARCEL_CARRIERS })
+        assertTrue(setOf("gls", "trunkrs").all { it in TRACK_PARCEL_POSTCODE_DOMAINS })
     }
 
     @Test
@@ -298,6 +301,9 @@ class ParcelCarrierAggregationTest {
             "dragonfly", "dynalogic", "gls", "helthjem", "hermes", "inpost", "nova_post",
             "oesterreichische_post", "packeta", "planzer", "postnl", "postnord", "quickpac",
             "sameday", "sunyou", "swiss_post", "trunkrs", "vinted_go", "parcel_aggregator",
+            // Added November 2026.
+            "dhl", "ups", "fedex", "usps", "bpost", "laposte", "fourpx", "amazon_orders",
+            "amazon_shipping", "posten_bring", "poste_italiane", "canada_post", "evri",
         )
         val missing = published.filterNot { it in PARCEL_CARRIERS }
         assertEquals(emptyList<String>(), missing)
@@ -318,6 +324,13 @@ class ParcelCarrierAggregationTest {
             "Sameday easybox" to "sameday",
             "SunYou" to "sunyou",
             "Budbee" to "budbee",
+            // The global DHL integration is not DHL NL.
+            "DHL" to "dhl",
+            "DHL NL" to "dhl_nl",
+            "Amazon Shipping" to "amazon_shipping",
+            "UPS" to "ups",
+            "My device groups" to "parcel",
+            "4PX" to "fourpx",
         )
         expected.forEach { (text, domain) ->
             assertEquals(text, domain, carrierKey(text))

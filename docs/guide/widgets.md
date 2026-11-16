@@ -139,14 +139,14 @@ Reads the [ha-parcel-integrations](https://github.com/search?q=ha-parcel-integra
 integrations and shows incoming and outgoing parcels with brand logos, delivery windows and
 status. Carrier logos are bundled in the app, so they work offline.
 
-Every carrier the organisation publishes is supported: **Ampère**, **An Post**, **Budbee**,
-**Cainiao**, **Correos**, **Delhivery**, **DHL**, **DPD**, **Dragonfly**, **Dynalogic**, **GLS**,
-**Helthjem**, **Hermes**, **InPost**, **Nova Post**, **Österreichische Post**, **Packeta**,
-**Planzer**, **PostNL**, **PostNord**, **Quickpac**, **Sameday**, **SunYou**, **Swiss Post**,
-**Trunkrs**, **Vinted Go**, and the generic **Parcels** aggregator.
+Every carrier the organisation publishes is supported, 94 of them as of November 2026, from
+**4PX** to **XLCourier**: **DHL**, **DHL NL**, **UPS**, **FedEx**, **USPS**, **PostNL**, **DPD**,
+**GLS**, **bpost**, **La Poste**, **PostNord**, **InPost** and many more, plus the generic
+**Parcels** aggregator.
 
-Some carriers expose a manual `track_parcel` service, so you can add a parcel by tracking number
-from inside the widget. HKI 7 asks Home Assistant which ones do rather than carrying a fixed list,
+Most carriers expose `track_parcel` and `untrack_parcel` services, so you can add a parcel by
+tracking number from inside the widget, choosing the carrier yourself, and remove an open parcel
+with **Remove parcel**. HKI 7 asks Home Assistant which ones do rather than carrying a fixed list,
 so a carrier that gains the service — or one published after your app version — works without an
 update. Account-based carriers only ever track what is already in the account, so they have no
 manual add.

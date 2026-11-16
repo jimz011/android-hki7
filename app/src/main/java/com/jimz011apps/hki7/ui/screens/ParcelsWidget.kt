@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Home
@@ -475,51 +476,125 @@ internal fun collectCarrierParcels(
 }
 
 /** Every supported ha-parcel-integrations carrier: HA integration domain -> display name.
- *  The domain is the repository name with the `ha-` prefix dropped and dashes as underscores,
- *  which is how the original entries here were derived and how the rest follow. */
+ *  Domains come from each integration's manifest.json (mostly the repository name without `ha-`,
+ *  but not always: ha-4px is `fourpx`, ha-amazon is `amazon_orders`). Refreshed November 2026. */
 internal val PARCEL_CARRIERS = linkedMapOf(
-    "postnl" to "PostNL", "dhl_nl" to "DHL", "dpd" to "DPD", "gls" to "GLS",
-    "dragonfly" to "Dragonfly", "cainiao" to "Cainiao", "correos" to "Correos",
-    "packeta" to "Packeta", "hermes" to "Hermes", "trunkrs" to "Trunkrs",
-    "vinted_go" to "Vinted Go",
-    "ampere" to "Ampère", "an_post" to "An Post", "budbee" to "Budbee",
-    "delhivery" to "Delhivery", "dynalogic" to "Dynalogic", "helthjem" to "Helthjem",
-    "inpost" to "InPost", "nova_post" to "Nova Post",
-    "oesterreichische_post" to "Österreichische Post", "planzer" to "Planzer",
-    "postnord" to "PostNord", "quickpac" to "Quickpac", "sameday" to "Sameday",
-    "sunyou" to "SunYou", "swiss_post" to "Swiss Post",
+    "acs_courier" to "ACS Courier", "airmee" to "Airmee", "amazon_orders" to "Amazon",
+    "amazon_shipping" to "Amazon Shipping", "ampere" to "Ampère", "an_post" to "An Post",
+    "apple_express" to "Apple Express", "aramex" to "Aramex", "better_trucks" to "Better Trucks",
+    "boxnow" to "BoxNow", "bpost" to "bpost", "budbee" to "Budbee",
+    "cainiao" to "Cainiao", "canada_post" to "Canada Post", "canpar" to "Canpar",
+    "cargus" to "Cargus", "cdl_last_mile" to "CDL Last Mile Solutions", "ceska_posta" to "Ceska Posta & Balikovna",
+    "colis_prive" to "Colis Privé", "colisweb" to "Colisweb", "correos" to "Correos",
+    "ctt" to "CTT (Express)", "danske_fragtmaend" to "Danske Fragtmænd", "dao" to "DAO",
+    "delhivery" to "Delhivery", "dhl" to "DHL", "dhl_nl" to "DHL NL",
+    "dpd" to "DPD", "dragonfly" to "Dragonfly", "dynalogic" to "Dynalogic",
+    "early_bird" to "Early Bird", "econt" to "Econt", "ecoscooting" to "Ecoscooting",
+    "elta_courier" to "ELTA Courier", "emile" to "eMile", "evri" to "Evri",
+    "fan_courier" to "FAN Courier", "fedex" to "FedEx", "fourpx" to "4PX",
+    "geniki_taxydromiki" to "Geniki Taxydromiki", "gls" to "GLS", "gobolt" to "GoBolt",
+    "gofo" to "GOFO Express", "helthjem" to "Helthjem", "hermes" to "Hermes",
+    "hrvatska_posta" to "Hrvatska pošta", "ics_courier" to "ICS Courier", "inpost" to "InPost",
+    "laposte" to "La Poste, Chronopost & Colissimo", "magyar_posta" to "Magyar Posta", "matkahuolto" to "Matkahuolto",
+    "meest" to "Meest", "mondial_relay" to "Mondial Relay", "nationex" to "Nationex",
+    "nova_post" to "Nova Post", "nz_post" to "NZ Post", "oesterreichische_post" to "Österreichische Post",
+    "omniva" to "Omniva", "ontrac" to "OnTrac", "orlen_paczka" to "ORLEN Paczka",
+    "paack" to "Paack", "packeta" to "Packeta", "pdn_express" to "PDN Express",
+    "planzer" to "Planzer", "poczta_polska" to "Poczta Polska", "posta_slovenije" to "Pošta Slovenije",
+    "posta_srbije" to "Pošta Srbije", "poste_italiane" to "Poste Italiane", "posten_bring" to "Posten Bring",
+    "posti" to "Posti", "postnl" to "PostNL", "postnord" to "PostNord",
+    "ppl_cz" to "PPL CZ", "purolator" to "Purolator", "quickpac" to "Quickpac",
+    "sameday" to "Sameday", "seur" to "SEUR", "shopee_xpress" to "Shopee Xpress",
+    "slovak_parcel_service" to "Slovak Parcel Service", "slovenska_posta" to "Slovenská Pošta", "spee_dee_delivery" to "Spee-Dee Delivery",
+    "speedx" to "SpeedX", "straightship" to "Straightship", "sunyou" to "SunYou",
+    "swiss_post" to "Swiss Post", "tipsa" to "TIPSA", "trunkrs" to "Trunkrs",
+    "ukrposhta" to "Ukrposhta", "uniuni" to "UniUni", "ups" to "UPS",
+    "usps" to "USPS", "vinted_go" to "Vinted Go", "xlcourier" to "XLCourier",
     // The aggregator stays last: it unifies the others rather than being a carrier itself.
     "parcel_aggregator" to "Parcels"
 )
 
 /** Carriers whose integration exposes `<domain>.track_parcel` — a manual add-by-tracking-number
- *  service (account-based carriers like PostNL/DPD/DHL only track what's already in the account). */
+ *  service (account-based carriers like PostNL/DPD/DHL NL only track what's already in the account).
+ *  Only a fallback: the live service registry is asked first (see [rememberParcelServices]). */
 internal val TRACK_PARCEL_DOMAINS = setOf(
-    "gls", "dragonfly", "cainiao", "correos", "packeta", "hermes", "trunkrs"
+    "acs_courier", "airmee", "amazon_shipping", "an_post", "apple_express", "aramex",
+    "better_trucks", "boxnow", "bpost", "budbee", "cainiao", "canada_post",
+    "canpar", "cargus", "cdl_last_mile", "ceska_posta", "colis_prive", "colisweb",
+    "correos", "ctt", "danske_fragtmaend", "dao", "delhivery", "dhl",
+    "dragonfly", "dynalogic", "early_bird", "econt", "ecoscooting", "elta_courier",
+    "emile", "evri", "fan_courier", "fedex", "fourpx", "geniki_taxydromiki",
+    "gls", "gobolt", "gofo", "helthjem", "hermes", "hrvatska_posta",
+    "ics_courier", "inpost", "laposte", "magyar_posta", "matkahuolto", "meest",
+    "mondial_relay", "nationex", "nova_post", "nz_post", "oesterreichische_post", "omniva",
+    "ontrac", "orlen_paczka", "paack", "packeta", "pdn_express", "planzer",
+    "poczta_polska", "posta_slovenije", "posta_srbije", "poste_italiane", "posti", "postnord",
+    "purolator", "quickpac", "sameday", "shopee_xpress", "slovak_parcel_service", "slovenska_posta",
+    "spee_dee_delivery", "speedx", "straightship", "sunyou", "swiss_post", "tipsa",
+    "trunkrs", "ukrposhta", "uniuni", "ups", "usps", "xlcourier"
+)
+
+/** What Home Assistant says each parcel integration can do: `track_parcel` / `untrack_parcel`
+ *  definitions keyed by domain. [live] is false while only the built-in fallback is known. */
+internal data class ParcelServices(
+    val track: Map<String, HAActionDefinition?>,
+    val untrack: Map<String, HAActionDefinition?>,
+    val live: Boolean
+)
+
+private val FALLBACK_PARCEL_SERVICES = ParcelServices(
+    track = TRACK_PARCEL_DOMAINS.associateWith { null },
+    untrack = TRACK_PARCEL_DOMAINS.associateWith { null },
+    live = false
 )
 
 /**
- * Which of [carriers] can be added by tracking number. Asks Home Assistant which integrations
- * expose `track_parcel` and falls back to [TRACK_PARCEL_DOMAINS] only when the service registry is
- * unreachable, so a carrier that gains the service — or a carrier added after this build — works
- * without an app update.
+ * Which integrations can add or remove a parcel by tracking number. Asks Home Assistant's service
+ * registry and falls back to [TRACK_PARCEL_DOMAINS] only when it is unreachable, so a carrier that
+ * gains the service, or a carrier released after this build, works without an app update.
  */
 @Composable
-internal fun rememberManualAddDomains(viewModel: MainViewModel): Set<String> {
-    var domains by remember { mutableStateOf(TRACK_PARCEL_DOMAINS) }
+internal fun rememberParcelServices(viewModel: MainViewModel): ParcelServices {
+    var services by remember { mutableStateOf(FALLBACK_PARCEL_SERVICES) }
     LaunchedEffect(viewModel) {
-        val live = viewModel.trackParcelDomains()
-        if (live.isNotEmpty()) domains = live
+        val actions = viewModel.parcelServiceDefinitions()
+        if (actions.isNotEmpty()) {
+            fun of(service: String) = actions.filterKeys { it.endsWith(".$service") }
+                .mapKeys { it.key.substringBefore('.') }
+            services = ParcelServices(of("track_parcel"), of("untrack_parcel"), live = true)
+        }
     }
-    return domains
+    return services
 }
 
+/** Fields of `track_parcel` / `untrack_parcel` the app fills in itself or that make no sense to ask. */
+private val HIDDEN_PARCEL_FIELDS = setOf("tracking_code", "config_entry_id", "entry_id")
+
+/** The integration a parcel belongs to: its own carrier, or for the aggregator the parcel's source. */
+private fun JsonObject.parcelDomain(carrier: ParcelCarrier): String {
+    if (carrier.domain != "parcel_aggregator") return carrier.domain
+    val source = parcelValue("carrier") ?: parcelValue("platform") ?: parcelValue("source") ?: return carrier.domain
+    val normalized = source.lowercase(Locale.ROOT).replace(' ', '_').replace('-', '_')
+    return normalized.takeIf { it in PARCEL_CARRIERS }
+        ?: PARCEL_CARRIERS.entries.firstOrNull { it.value.equals(source, ignoreCase = true) }?.key
+        ?: carrierKey(source).takeIf { it != "parcel" }
+        ?: carrier.domain
+}
+
+private fun JsonObject.trackingCode(): String? =
+    listOf("barcode", "tracking_code", "tracking_number", "trackingcode")
+        .firstNotNullOfOrNull { key -> parcelValue(key)?.takeIf(String::isNotBlank) }
+
 /** Carriers whose `track_parcel` also accepts an optional postal_code to pick the right hub. */
-internal val TRACK_PARCEL_POSTCODE_DOMAINS = setOf("gls", "trunkrs")
+internal val TRACK_PARCEL_POSTCODE_DOMAINS = setOf(
+    "bpost", "colis_prive", "dynalogic", "evri", "gls", "mondial_relay",
+    "paack", "slovak_parcel_service", "tipsa", "trunkrs"
+)
 
 internal fun carrierKey(text: String): String = when {
     text.contains("postnl", true) -> "postnl"
-    text.contains("dhl", true) -> "dhl_nl"
+    text.contains("dhl nl", true) || text.contains("dhl_nl", true) || text.contains("dhl parcel", true) -> "dhl_nl"
+    text.contains("dhl", true) -> "dhl"
     text.contains("dpd", true) -> "dpd"
     text.contains("gls", true) -> "gls"
     text.contains("dragonfly", true) -> "dragonfly"
@@ -548,8 +623,18 @@ internal fun carrierKey(text: String): String = when {
     text.contains("sameday", true) || text.contains("easybox", true) -> "sameday"
     text.contains("sunyou", true) || text.contains("sypost", true) -> "sunyou"
     text.contains("parcel aggregator", true) -> "parcel_aggregator"
-    else -> "parcel"
+    else -> carrierByWholeName(text) ?: "parcel"
 }
+
+/** Last-resort match on any known carrier's display name or domain as whole words, longest first so
+ *  "Amazon Shipping" wins over "Amazon". Whole words keep "UPS" out of "groups". */
+private fun carrierByWholeName(text: String): String? = PARCEL_CARRIERS.entries
+    .filter { it.key != "parcel_aggregator" }
+    .flatMap { (domain, name) -> listOf(name to domain, domain.replace('_', ' ') to domain) }
+    .sortedByDescending { it.first.length }
+    .firstOrNull { (needle, _) ->
+        Regex("(?<![\\p{L}\\p{N}])${Regex.escape(needle)}(?![\\p{L}\\p{N}])", RegexOption.IGNORE_CASE).containsMatchIn(text)
+    }?.second
 
 private fun carrierName(domain: String) = PARCEL_CARRIERS[domain] ?: "Carrier"
 
@@ -559,32 +644,99 @@ private fun carrierName(domain: String) = PARCEL_CARRIERS[domain] ?: "Carrier"
  *  this build has never heard of. Kept as an explicit map rather than a name lookup so resource
  *  shrinking can still see each drawable is used. */
 private fun carrierLogoRes(domain: String): Int? = when (domain) {
-    "postnl" -> R.drawable.parcel_postnl
-    "dhl_nl" -> R.drawable.parcel_dhl_nl
-    "dpd" -> R.drawable.parcel_dpd
-    "gls" -> R.drawable.parcel_gls
-    "dragonfly" -> R.drawable.parcel_dragonfly
-    "cainiao" -> R.drawable.parcel_cainiao
-    "correos" -> R.drawable.parcel_correos
-    "packeta" -> R.drawable.parcel_packeta
-    "hermes" -> R.drawable.parcel_hermes
-    "trunkrs" -> R.drawable.parcel_trunkrs
-    "vinted_go" -> R.drawable.parcel_vinted_go
+    "acs_courier" -> R.drawable.parcel_acs_courier
+    "airmee" -> R.drawable.parcel_airmee
+    "amazon_orders" -> R.drawable.parcel_amazon_orders
+    "amazon_shipping" -> R.drawable.parcel_amazon_shipping
     "ampere" -> R.drawable.parcel_ampere
     "an_post" -> R.drawable.parcel_an_post
+    "apple_express" -> R.drawable.parcel_apple_express
+    "aramex" -> R.drawable.parcel_aramex
+    "better_trucks" -> R.drawable.parcel_better_trucks
+    "boxnow" -> R.drawable.parcel_boxnow
+    "bpost" -> R.drawable.parcel_bpost
     "budbee" -> R.drawable.parcel_budbee
+    "cainiao" -> R.drawable.parcel_cainiao
+    "canada_post" -> R.drawable.parcel_canada_post
+    "canpar" -> R.drawable.parcel_canpar
+    "cargus" -> R.drawable.parcel_cargus
+    "cdl_last_mile" -> R.drawable.parcel_cdl_last_mile
+    "ceska_posta" -> R.drawable.parcel_ceska_posta
+    "colis_prive" -> R.drawable.parcel_colis_prive
+    "colisweb" -> R.drawable.parcel_colisweb
+    "correos" -> R.drawable.parcel_correos
+    "ctt" -> R.drawable.parcel_ctt
+    "danske_fragtmaend" -> R.drawable.parcel_danske_fragtmaend
+    "dao" -> R.drawable.parcel_dao
     "delhivery" -> R.drawable.parcel_delhivery
+    "dhl" -> R.drawable.parcel_dhl
+    "dhl_nl" -> R.drawable.parcel_dhl_nl
+    "dpd" -> R.drawable.parcel_dpd
+    "dragonfly" -> R.drawable.parcel_dragonfly
     "dynalogic" -> R.drawable.parcel_dynalogic
+    "early_bird" -> R.drawable.parcel_early_bird
+    "econt" -> R.drawable.parcel_econt
+    "ecoscooting" -> R.drawable.parcel_ecoscooting
+    "elta_courier" -> R.drawable.parcel_elta_courier
+    "emile" -> R.drawable.parcel_emile
+    "evri" -> R.drawable.parcel_evri
+    "fan_courier" -> R.drawable.parcel_fan_courier
+    "fedex" -> R.drawable.parcel_fedex
+    "fourpx" -> R.drawable.parcel_fourpx
+    "geniki_taxydromiki" -> R.drawable.parcel_geniki_taxydromiki
+    "gls" -> R.drawable.parcel_gls
+    "gobolt" -> R.drawable.parcel_gobolt
+    "gofo" -> R.drawable.parcel_gofo
     "helthjem" -> R.drawable.parcel_helthjem
+    "hermes" -> R.drawable.parcel_hermes
+    "hrvatska_posta" -> R.drawable.parcel_hrvatska_posta
+    "ics_courier" -> R.drawable.parcel_ics_courier
     "inpost" -> R.drawable.parcel_inpost
+    "laposte" -> R.drawable.parcel_laposte
+    "magyar_posta" -> R.drawable.parcel_magyar_posta
+    "matkahuolto" -> R.drawable.parcel_matkahuolto
+    "meest" -> R.drawable.parcel_meest
+    "mondial_relay" -> R.drawable.parcel_mondial_relay
+    "nationex" -> R.drawable.parcel_nationex
     "nova_post" -> R.drawable.parcel_nova_post
+    "nz_post" -> R.drawable.parcel_nz_post
     "oesterreichische_post" -> R.drawable.parcel_oesterreichische_post
+    "omniva" -> R.drawable.parcel_omniva
+    "ontrac" -> R.drawable.parcel_ontrac
+    "orlen_paczka" -> R.drawable.parcel_orlen_paczka
+    "paack" -> R.drawable.parcel_paack
+    "packeta" -> R.drawable.parcel_packeta
+    "pdn_express" -> R.drawable.parcel_pdn_express
     "planzer" -> R.drawable.parcel_planzer
+    "poczta_polska" -> R.drawable.parcel_poczta_polska
+    "posta_slovenije" -> R.drawable.parcel_posta_slovenije
+    "posta_srbije" -> R.drawable.parcel_posta_srbije
+    "poste_italiane" -> R.drawable.parcel_poste_italiane
+    "posten_bring" -> R.drawable.parcel_posten_bring
+    "posti" -> R.drawable.parcel_posti
+    "postnl" -> R.drawable.parcel_postnl
     "postnord" -> R.drawable.parcel_postnord
+    "ppl_cz" -> R.drawable.parcel_ppl_cz
+    "purolator" -> R.drawable.parcel_purolator
     "quickpac" -> R.drawable.parcel_quickpac
     "sameday" -> R.drawable.parcel_sameday
+    "seur" -> R.drawable.parcel_seur
+    "shopee_xpress" -> R.drawable.parcel_shopee_xpress
+    "slovak_parcel_service" -> R.drawable.parcel_slovak_parcel_service
+    "slovenska_posta" -> R.drawable.parcel_slovenska_posta
+    "spee_dee_delivery" -> R.drawable.parcel_spee_dee_delivery
+    "speedx" -> R.drawable.parcel_speedx
+    "straightship" -> R.drawable.parcel_straightship
     "sunyou" -> R.drawable.parcel_sunyou
     "swiss_post" -> R.drawable.parcel_swiss_post
+    "tipsa" -> R.drawable.parcel_tipsa
+    "trunkrs" -> R.drawable.parcel_trunkrs
+    "ukrposhta" -> R.drawable.parcel_ukrposhta
+    "uniuni" -> R.drawable.parcel_uniuni
+    "ups" -> R.drawable.parcel_ups
+    "usps" -> R.drawable.parcel_usps
+    "vinted_go" -> R.drawable.parcel_vinted_go
+    "xlcourier" -> R.drawable.parcel_xlcourier
     "parcel_aggregator" -> R.drawable.parcel_parcel_aggregator
     else -> null
 }
@@ -822,6 +974,15 @@ fun ParcelsWidgetItem(
 }
 
 @Composable
+private fun DomainLogo(domain: String, size: Int) {
+    Surface(shape = RoundedCornerShape((size / 4).dp), color = Color.White, shadowElevation = 3.dp, modifier = Modifier.size(size.dp)) {
+        val logoRes = carrierLogoRes(domain)
+        if (logoRes != null) Image(painterResource(logoRes), carrierName(domain), Modifier.fillMaxSize().padding(7.dp), contentScale = ContentScale.Fit)
+        else Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.LocalShipping, null, tint = Color.DarkGray) }
+    }
+}
+
+@Composable
 private fun CarrierLogo(carrier: ParcelCarrier, size: Int) {
     Surface(shape = RoundedCornerShape((size / 4).dp), color = Color.White, shadowElevation = 3.dp, modifier = Modifier.size(size.dp)) {
         val logoUrl = carrier.logoUrl
@@ -857,8 +1018,9 @@ private fun ParcelAsyncImage(
 private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel, onDismiss: () -> Unit) {
     val appColors = LocalHKIAppColors.current
     var showAddParcel by remember { mutableStateOf(false) }
-    val manualAddDomains = rememberManualAddDomains(viewModel)
-    val canAddParcel = remember(carriers, manualAddDomains) { carriers.any { it.domain in manualAddDomains } }
+    val parcelServices = rememberParcelServices(viewModel)
+    val canAddParcel = parcelServices.track.isNotEmpty()
+    var confirmRemove by remember { mutableStateOf<JsonObject?>(null) }
     var selectedCarrierId by remember(carriers) { mutableStateOf(if (carriers.size == 1) carriers.firstOrNull()?.deviceId else null) }
     val carrier = carriers.firstOrNull { it.deviceId == selectedCarrierId }
     var tab by remember(selectedCarrierId) { mutableStateOf(ParcelTab.Incoming) }
@@ -1053,7 +1215,19 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
             }
         },
         footer = {
-            if (canAddParcel && !parcelDetail) {
+            val removable = selectedParcel?.takeIf { parcel ->
+                parcelDetail && carrier != null && parcel.trackingCode() != null &&
+                    parcel.parcelDomain(carrier) in parcelServices.untrack
+            }
+            if (removable != null) {
+                TextButton(
+                    onClick = { confirmRemove = removable },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Default.Delete, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.parcel_remove))
+                }
+                Spacer(Modifier.weight(1f))
+            } else if (canAddParcel && !parcelDetail) {
                 Button(onClick = { showAddParcel = true }) {
                     Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text(stringResource(R.string.ui_add_parcel_bde8afb))
                 }
@@ -1063,60 +1237,174 @@ private fun ParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel
         }
     )
     selectedLetter?.let { letter -> LetterViewerDialog(carrier, letter) { selectedLetter = null } }
-    if (showAddParcel) AddParcelDialog(carriers, viewModel) { showAddParcel = false }
+    if (showAddParcel) AddParcelDialog(
+        carriers = carriers,
+        services = parcelServices,
+        initialDomain = carrier?.domain?.takeIf { it in parcelServices.track },
+        viewModel = viewModel
+    ) { showAddParcel = false }
+    confirmRemove?.let { parcel ->
+        val owner = carrier ?: return@let
+        RemoveParcelDialog(parcel, owner, parcelServices, viewModel, onDismiss = { confirmRemove = null }) {
+            confirmRemove = null
+            parcelDetail = false
+            selectedHistory = null
+        }
+    }
 }
 
 @Composable
-private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewModel, onDismiss: () -> Unit) {
+private fun RemoveParcelDialog(
+    parcel: JsonObject,
+    carrier: ParcelCarrier,
+    services: ParcelServices,
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
+    onRemoved: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+    var failed by remember { mutableStateOf(false) }
+    val code = parcel.trackingCode().orEmpty()
+    val domain = parcel.parcelDomain(carrier)
+    AlertDialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        title = { Text(stringResource(R.string.parcel_remove_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.parcel_remove_body, code, carrierName(domain)))
+                if (failed) Text(stringResource(R.string.parcel_remove_failed), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = !busy,
+                onClick = {
+                    busy = true; failed = false
+                    scope.launch {
+                        // Pass along any extra key the integration asks for (postal code, country)
+                        // when the parcel carries it, so the right hub drops it.
+                        val accepted = services.untrack[domain]?.fields?.map { it.key }.orEmpty()
+                        val payload = buildJsonObject {
+                            put("tracking_code", code)
+                            accepted.filter { it !in HIDDEN_PARCEL_FIELDS }.forEach { key ->
+                                parcel.parcelValue(key)?.takeIf(String::isNotBlank)?.let { put(key, it) }
+                            }
+                        }
+                        val result = runCatching { viewModel.callServiceRawAwait(domain, "untrack_parcel", payload) }
+                        busy = false
+                        if (result.isSuccess) onRemoved() else failed = true
+                    }
+                },
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) { Text(stringResource(R.string.parcel_remove)) }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) } }
+    )
+}
+
+@Composable
+private fun AddParcelDialog(
+    carriers: List<ParcelCarrier>,
+    services: ParcelServices,
+    initialDomain: String?,
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit
+) {
     val appColors = LocalHKIAppColors.current
     val scope = rememberCoroutineScope()
-    // Only carriers whose integration supports track_parcel; dedupe by domain since the service is
-    // domain-level (it resolves the config entry itself, so aggregated/multiple accounts collapse).
-    val manualAddDomains = rememberManualAddDomains(viewModel)
-    val addable = remember(carriers, manualAddDomains) {
-        carriers.filter { it.domain in manualAddDomains }.distinctBy { it.domain }
+    // Every integration Home Assistant can add a parcel to, the widget's own carriers first. The
+    // carrier is always the user's choice: guessing it from the number or the widget picked the
+    // wrong integration (a global DHL number sent to DHL NL) more than once.
+    val addable = remember(carriers, services) {
+        val onWidget = carriers.map { it.domain }.filter { it in services.track }
+        val rest = services.track.keys.filter { it !in onWidget && it != "parcel_aggregator" }
+            .sortedBy { carrierName(it).lowercase(Locale.ROOT) }
+        (onWidget + rest).distinct()
     }
-    var selectedDomain by remember { mutableStateOf(if (addable.size == 1) addable.first().domain else null) }
-    val selected = addable.firstOrNull { it.domain == selectedDomain }
-    var tracking by remember(selectedDomain) { mutableStateOf("") }
-    var postcode by remember(selectedDomain) { mutableStateOf("") }
+    var selectedDomain by remember { mutableStateOf(initialDomain ?: addable.singleOrNull()) }
+    var picking by remember { mutableStateOf(selectedDomain == null) }
+    var tracking by remember { mutableStateOf("") }
+    val extras = remember(selectedDomain) { mutableStateMapOf<String, String>() }
     var busy by remember { mutableStateOf(false) }
     var message by remember(selectedDomain) { mutableStateOf<String?>(null) }
-    val needsPostcode = selected?.domain in TRACK_PARCEL_POSTCODE_DOMAINS
     val addParcelError = stringResource(R.string.ui_could_not_add_the_parcel_check_the_number_and_fd157b4)
+    val definition = selectedDomain?.let { services.track[it] }
+    // Extra inputs straight from the integration's own service definition (postal code, direction,
+    // country, ...). Without a live definition only the postal code is known for a few carriers.
+    val extraFields: List<HAActionFieldDefinition> = when {
+        definition != null -> definition.fields.filter { it.key !in HIDDEN_PARCEL_FIELDS }
+        selectedDomain in TRACK_PARCEL_POSTCODE_DOMAINS -> listOf(HAActionFieldDefinition("postal_code", "postal_code"))
+        else -> emptyList()
+    }
 
     com.jimz011apps.hki7.ui.components.ModernSettingsDialogFrame(
         title = stringResource(R.string.ui_add_parcel_82c0bf8),
-        subtitle = selected?.let { stringResource(R.string.parcel_track_new, it.name) }
-            ?: stringResource(R.string.parcel_choose_carrier),
+        subtitle = if (picking || selectedDomain == null) stringResource(R.string.parcel_choose_carrier)
+            else stringResource(R.string.parcel_track_new, carrierName(selectedDomain!!)),
         icon = Icons.Default.Add,
         onDismiss = onDismiss,
-        onBack = if (selected != null && addable.size > 1) ({ selectedDomain = null }) else null,
+        onBack = if (picking && selectedDomain != null) ({ picking = false }) else null,
         content = {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val scroll = rememberScrollState()
+            Column(Modifier.fillMaxWidth().fadingEdges(scroll).verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 when {
                     addable.isEmpty() -> Text(
                         stringResource(R.string.ui_none_of_your_configured_carriers_support_adding_a_parcel_21dc0a4),
                         color = appColors.onMuted
                     )
-                    selected == null -> addable.forEach { c ->
-                        Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface,
-                            modifier = Modifier.fillMaxWidth().clickable { selectedDomain = c.domain }) {
-                            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                CarrierLogo(c, 48)
-                                Text(c.name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    picking || selectedDomain == null -> addable.forEach { domain ->
+                        Surface(shape = itemCornerShape(), color = if (domain == selectedDomain) MaterialTheme.colorScheme.primaryContainer else appColors.subtleSurface,
+                            contentColor = appColors.onSurface,
+                            modifier = Modifier.fillMaxWidth().clickable { selectedDomain = domain; picking = false }) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                DomainLogo(domain, 40)
+                                Text(carrierName(domain), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                             }
                         }
                     }
                     else -> {
+                        val domain = selectedDomain!!
+                        Surface(shape = itemCornerShape(), color = appColors.subtleSurface, contentColor = appColors.onSurface, modifier = Modifier.fillMaxWidth()) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                DomainLogo(domain, 40)
+                                Column(Modifier.weight(1f)) {
+                                    Text(stringResource(R.string.parcel_carrier_label), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
+                                    Text(carrierName(domain), fontWeight = FontWeight.Bold)
+                                }
+                                if (addable.size > 1) TextButton(onClick = { picking = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                            }
+                        }
                         OutlinedTextField(
                             value = tracking, onValueChange = { tracking = it; message = null },
                             label = { Text(stringResource(R.string.ui_tracking_number_4e40c54)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
                         )
-                        if (needsPostcode) OutlinedTextField(
-                            value = postcode, onValueChange = { postcode = it },
-                            label = { Text(stringResource(R.string.ui_postal_code_optional_b86b6a2)) }, singleLine = true, modifier = Modifier.fillMaxWidth()
-                        )
+                        extraFields.forEach { field ->
+                            val options = ((field.selector?.get("select") as? JsonObject)?.get("options") as? JsonArray)
+                                ?.mapNotNull { option ->
+                                    (option as? JsonPrimitive)?.contentOrNull
+                                        ?: (option as? JsonObject)?.get("value")?.jsonPrimitive?.contentOrNull
+                                }.orEmpty()
+                            val label = parcelFieldLabel(field)
+                            if (options.isNotEmpty()) {
+                                Text(label, style = MaterialTheme.typography.labelLarge)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    options.forEach { option ->
+                                        FilterChip(
+                                            selected = (extras[field.key] ?: options.first()) == option,
+                                            onClick = { extras[field.key] = option },
+                                            label = { Text(parcelOptionLabel(option)) }
+                                        )
+                                    }
+                                }
+                            } else {
+                                OutlinedTextField(
+                                    value = extras[field.key].orEmpty(), onValueChange = { extras[field.key] = it },
+                                    label = { Text(if (field.required) label else stringResource(R.string.parcel_optional_field, label)) },
+                                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
                         message?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                     }
                 }
@@ -1125,15 +1413,16 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
         footer = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             Spacer(Modifier.weight(1f))
-            if (selected != null) Button(
-                enabled = !busy && tracking.isNotBlank(),
+            val domain = selectedDomain
+            if (domain != null && !picking) Button(
+                enabled = !busy && tracking.isNotBlank() &&
+                    extraFields.none { it.required && extras[it.key].isNullOrBlank() },
                 onClick = {
-                    val domain = selected.domain
                     busy = true; message = null
                     scope.launch {
                         val payload = buildJsonObject {
                             put("tracking_code", tracking.trim())
-                            if (needsPostcode && postcode.isNotBlank()) put("postal_code", postcode.trim())
+                            extras.forEach { (key, value) -> if (value.isNotBlank()) put(key, value.trim()) }
                         }
                         val result = runCatching { viewModel.callServiceRawAwait(domain, "track_parcel", payload) }
                         busy = false
@@ -1144,6 +1433,22 @@ private fun AddParcelDialog(carriers: List<ParcelCarrier>, viewModel: MainViewMo
             ) { Text(if (busy) stringResource(R.string.ui_adding_ffb2e62) else stringResource(R.string.ui_add_61cc55a)) }
         }
     )
+}
+
+@Composable
+private fun parcelFieldLabel(field: HAActionFieldDefinition): String = when (field.key) {
+    "postal_code" -> stringResource(R.string.parcel_field_postal_code)
+    "direction" -> stringResource(R.string.parcel_field_direction)
+    "country" -> stringResource(R.string.parcel_field_country)
+    else -> field.name.takeIf { it.isNotBlank() && it != field.key }
+        ?: field.key.replace('_', ' ').replaceFirstChar { it.titlecase(Locale.getDefault()) }
+}
+
+@Composable
+private fun parcelOptionLabel(option: String): String = when (option) {
+    "incoming" -> stringResource(R.string.parcel_incoming)
+    "outgoing" -> stringResource(R.string.parcel_outgoing)
+    else -> option.replace('_', ' ').replaceFirstChar { it.titlecase(Locale.getDefault()) }
 }
 
 @Composable

@@ -3977,18 +3977,18 @@ class MainViewModel(val prefs: PreferencesManager, appCtx: Context? = null) : Vi
     }
 
     /**
-     * Which parcel-integration domains actually expose `<domain>.track_parcel`, asked of Home
-     * Assistant rather than hardcoded — the carrier list grows faster than the app ships, and a
-     * stale guess either hides manual tracking that works or offers an Add button that fails.
-     * Reuses the cached service registry the automation editor already fetches. Empty when the
-     * registry is unavailable, so callers can fall back to what they were built with.
+     * Every `<domain>.track_parcel` / `<domain>.untrack_parcel` Home Assistant exposes, keyed by its
+     * full action name, with the fields each one takes. Asked of Home Assistant rather than
+     * hardcoded: the carrier list grows faster than the app ships, and a stale guess either hides
+     * manual tracking that works or offers a button that fails. Reuses the cached service registry
+     * the automation editor already fetches. Empty when the registry is unavailable, so callers can
+     * fall back to what they were built with.
      */
-    suspend fun trackParcelDomains(): Set<String> = runCatching {
+    suspend fun parcelServiceDefinitions(): Map<String, HAActionDefinition> = runCatching {
         getAutomationActions()
-            .mapNotNull { action -> action.key.takeIf { it.endsWith(".track_parcel") } }
-            .map { it.substringBefore('.') }
-            .toSet()
-    }.getOrDefault(emptySet())
+            .filter { it.key.endsWith(".track_parcel") || it.key.endsWith(".untrack_parcel") }
+            .associateBy { it.key }
+    }.getOrDefault(emptyMap())
 
     suspend fun getAutomationActions(): List<HAActionDefinition> {
         return automationActionsMutex.withLock {

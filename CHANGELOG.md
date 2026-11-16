@@ -5,6 +5,36 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
+## 1.3.1
+
+A thermostat fix, + and − buttons for it, power usage on rooms and buttons, and a parcel widget
+that lets you pick the carrier and remove parcels.
+
+- Fixed the thermostat slider in the climate popup freezing after the first change. The slider's
+  touch handler kept writing into the target it was created with, and once Home Assistant confirmed
+  the new temperature the popup was showing a different one, so nothing moved until the popup was
+  closed and reopened. The same fix covers the thermostat dial and the climate and humidifier cards.
+- New + and − buttons beside the thermostat slider. A tap moves the target straight away and a burst
+  of taps sends one call. Their step follows the thermostat's own `target_temp_step` by default and
+  can be set to 0.1, 0.5 or 1 degree in the popup settings of a button or badge.
+- Rooms can show their power usage. Room status › Energy takes one or more power sensors, adds them
+  up and shows the total after temperature and humidity in the room header and on the room card,
+  for example `21°C / 45.5% / 440W`. The Rooms header adds up every room.
+- Buttons can show power usage at the end of their state line, opposite the on and brightness text, with the same
+  margins. Choose the sensor under the button's state settings; a PowerCalc sensor made for the
+  entity, or a power sensor on the same device such as a smart plug's, is suggested automatically.
+  Values keep at most one decimal (`300W`, `12.5W`).
+- Parcels can be removed: open a parcel and tap **Remove parcel**, which calls the carrier's
+  `untrack_parcel`. Parcels shown through the Parcel Aggregator are removed from the carrier they
+  came from.
+- Adding a parcel always lets you choose the carrier, and offers every integration Home Assistant
+  can add a parcel to, not only the carriers on the widget. The extra fields an integration asks
+  for (postal code, direction, country) come from Home Assistant itself.
+- The parcel widget knows all 94 ha-parcel-integrations carriers, up from 26, each with its logo:
+  DHL, UPS, FedEx, USPS, bpost, La Poste, Posten Bring, Poste Italiane, Canada Post, Evri, Amazon and
+  many more. Before this a parcel from the global DHL integration was treated as DHL NL and an add
+  was sent to the wrong integration.
+
 ## 1.3.0
 
 NFC tags, TidyShop family shopping lists in the to-do widget, and a round of fixes for the car,

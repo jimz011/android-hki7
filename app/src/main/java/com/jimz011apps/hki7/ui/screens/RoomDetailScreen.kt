@@ -65,6 +65,7 @@ import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.CropSquare
 import androidx.compose.material.icons.filled.TouchApp
@@ -113,6 +114,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.jimz011apps.hki7.ui.components.toVisibilitySpec
+import com.jimz011apps.hki7.ui.isPowerSensor
 import com.jimz011apps.hki7.ui.components.ModernAlertDialog as AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -134,6 +136,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -303,6 +306,7 @@ import kotlin.math.sin
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.UUID
 import kotlin.math.absoluteValue
@@ -3641,6 +3645,11 @@ fun ButtonConfigDialog(
      *  there is no state to read, so only its name, icon, and actions apply. */
     val isEntityLess = entity == null || isActionItemId(entity.entity_id)
     var stateAttribute by remember(config) { mutableStateOf(config.stateAttribute) }
+    // Not chosen yet: offer the PowerCalc (or same-device) power sensor straight away.
+    var powerEntityId by remember(config) {
+        mutableStateOf(config.powerEntityId ?: com.jimz011apps.hki7.ui.guessPowerEntityId(entity?.entity_id, allEntities, entityRegistry))
+    }
+    var showPowerPicker by remember { mutableStateOf(false) }
     var stateUnit by remember(config) { mutableStateOf(config.stateUnit) }
     var stateAsTimer by remember(config) { mutableStateOf(config.stateAsTimer) }
     var timerStateEntityId by remember(config) { mutableStateOf(config.timerStateEntityId) }
@@ -3683,6 +3692,7 @@ fun ButtonConfigDialog(
     var climateTempSensorEntityId by remember(config) { mutableStateOf(config.climateTempSensorEntityId) }
     var climateHumiditySensorEntityId by remember(config) { mutableStateOf(config.climateHumiditySensorEntityId) }
     var climateDialogControl by remember(config) { mutableStateOf(config.climateDialogControl) }
+    var climateStepSize by remember(config) { mutableStateOf(config.climateStepSize) }
     var showTempSensorPicker by remember { mutableStateOf(false) }
     var showHumiditySensorPicker by remember { mutableStateOf(false) }
 
@@ -3840,6 +3850,23 @@ fun ButtonConfigDialog(
                                 }
                             }
                         }
+                        if (entity != null && !entity.entity_id.startsWith("sensor.")) {
+                            val powerName = powerEntityId?.takeIf { it.isNotBlank() }
+                                ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(stringResource(R.string.cr_button_power_usage), style = MaterialTheme.typography.labelLarge)
+                                    Text(
+                                        powerName ?: stringResource(R.string.cr_button_power_usage_none),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (powerName != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                TextButton(onClick = { showPowerPicker = true }) { Text(stringResource(R.string.ui_change_64fbd99)) }
+                                // Blank, not null: a cleared sensor stays cleared instead of being re-detected.
+                                if (powerName != null) TextButton(onClick = { powerEntityId = "" }) { Text(stringResource(R.string.ui_clear_719ea39)) }
+                            }
+                        }
                     }
                     // ── Entity integrations (moved here from the former "Entity" tab) ──
                     if (isLockEntity) {
@@ -3872,6 +3899,8 @@ fun ButtonConfigDialog(
                                 label = { Text(stringResource(R.string.ui_thermostat_dial_e6af91b)) }
                             )
                         }
+                        Text(stringResource(R.string.cr_climate_step_size), style = MaterialTheme.typography.labelLarge)
+                        ClimateStepSizeChips(climateStepSize) { climateStepSize = it }
                         Text(stringResource(R.string.ui_temperature_sensor_graphed_in_activity_1088c3d), style = MaterialTheme.typography.labelLarge)
                         val tempName = climateTempSensorEntityId?.takeIf { it.isNotBlank() }
                             ?.let { id -> allEntities.find { it.entity_id == id }?.friendlyName ?: id }
@@ -4192,6 +4221,7 @@ fun ButtonConfigDialog(
                         config.copy(
                             name = name.ifBlank { null },
                             stateAttribute = if (isCameraItem || isVacuumItem) config.stateAttribute else stateAttribute,
+                            powerEntityId = if (isCameraItem || isVacuumItem) config.powerEntityId else powerEntityId,
                             stateUnit = if (isCameraItem || isVacuumItem) config.stateUnit else stateUnit,
                             stateAsTimer = if (isCameraItem || isVacuumItem) config.stateAsTimer else stateAsTimer,
                             timerStateEntityId = if (isCameraItem || isVacuumItem) config.timerStateEntityId else timerStateEntityId,
@@ -4232,6 +4262,7 @@ fun ButtonConfigDialog(
                             climateTempSensorEntityId = if (isClimateEntity) climateTempSensorEntityId else config.climateTempSensorEntityId,
                             climateHumiditySensorEntityId = if (isClimateEntity) climateHumiditySensorEntityId else config.climateHumiditySensorEntityId,
                             climateDialogControl = if (isClimateEntity) climateDialogControl else config.climateDialogControl,
+                            climateStepSize = if (isClimateEntity) climateStepSize else config.climateStepSize,
                             hidden = if (isCameraItem || isVacuumItem) config.hidden else visSpec.hidden,
                             visibilityStart = if (isCameraItem || isVacuumItem) config.visibilityStart else visSpec.start,
                             visibilityEnd = if (isCameraItem || isVacuumItem) config.visibilityEnd else visSpec.end,
@@ -4317,6 +4348,16 @@ fun ButtonConfigDialog(
             allEntities = allEntities.filter { it.entity_id.startsWith("button.") || it.entity_id.startsWith("switch.") },
             title = stringResource(R.string.ui_select_empty_bin_control_d992252), singleSelect = true, preselectedIds = setOfNotNull(vacuumEmptyBinEntityId),
             onDismiss = { showEmptyBinPicker = false }, onEntitiesSelected = { vacuumEmptyBinEntityId = it.firstOrNull(); showEmptyBinPicker = false }
+        )
+    }
+    if (showPowerPicker) {
+        AdvancedEntitySearchDialog(
+            allEntities = allEntities.filter { it.isPowerSensor() },
+            title = stringResource(R.string.cr_button_power_usage),
+            singleSelect = true,
+            preselectedIds = setOfNotNull(powerEntityId?.takeIf { it.isNotBlank() }),
+            onDismiss = { showPowerPicker = false },
+            onEntitiesSelected = { ids -> powerEntityId = ids.firstOrNull() ?: ""; showPowerPicker = false }
         )
     }
     if (showTempSensorPicker) {
@@ -4488,7 +4529,8 @@ fun PagedRoleDialog(
                         viewModel,
                         showModes = showClimateModes,
                         onToggleModes = { showClimateModes = it },
-                        useDial = useClimateDial || climateConfig?.climateDialogControl == "dial"
+                        useDial = useClimateDial || climateConfig?.climateDialogControl == "dial",
+                        stepOverride = climateConfig?.climateStepSize
                     )
                     "lock" -> LockControlContent(entity, viewModel, entityStateTone)
                     "cover" -> BlindControlContent(entity, viewModel)
@@ -5570,6 +5612,7 @@ fun ButtonStackItem(
                                 entity = entity,
                                 displayName = cfg?.name,
                                 stateAttribute = cfg?.stateAttribute,
+                                powerText = com.jimz011apps.hki7.ui.powerLabel(cfg?.powerEntityId, allEntities),
                                 stateAsTimer = cfg?.stateAsTimer ?: false,
                                 timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                 iconName = cfg?.icon,
@@ -5675,6 +5718,7 @@ fun ButtonStackItem(
                                         entity = entity,
                                         displayName = cfg?.name,
                                         stateAttribute = cfg?.stateAttribute,
+                                        powerText = com.jimz011apps.hki7.ui.powerLabel(cfg?.powerEntityId, allEntities),
                                         stateAsTimer = cfg?.stateAsTimer ?: false,
                                         timerMachineRunning = cfg?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = cfg?.icon,
@@ -5741,6 +5785,7 @@ fun ButtonStackItem(
                                         entity = entity,
                                         displayName = buttonConfigs[entity.entity_id]?.name,
                                         stateAttribute = buttonConfigs[entity.entity_id]?.stateAttribute,
+                                        powerText = com.jimz011apps.hki7.ui.powerLabel(buttonConfigs[entity.entity_id]?.powerEntityId, allEntities),
                                         stateAsTimer = buttonConfigs[entity.entity_id]?.stateAsTimer ?: false,
                                         timerMachineRunning = buttonConfigs[entity.entity_id]?.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                                         iconName = buttonConfigs[entity.entity_id]?.icon,
@@ -5946,6 +5991,7 @@ fun SingleEntityWidgetItem(
                         entity = entity,
                         displayName = widget.config.name,
                         stateAttribute = widget.config.stateAttribute,
+                        powerText = com.jimz011apps.hki7.ui.powerLabel(widget.config.powerEntityId, allEntities),
                         stateAsTimer = widget.config.stateAsTimer,
                         timerMachineRunning = widget.config.timerStateEntityId?.let { id -> com.jimz011apps.hki7.ui.components.isMachineRunning(allEntities.find { it.entity_id == id }?.state) } ?: true,
                         iconName = widget.config.icon,
@@ -6975,7 +7021,7 @@ private fun CameraStackCard(
  * The middle region absorbs size differences via Modifier.weight.
  */
 @Composable
-private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit, useDial: Boolean = false) {
+private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, showModes: Boolean, onToggleModes: (Boolean) -> Unit, useDial: Boolean = false, stepOverride: Double? = null) {
     val appColors = LocalHKIAppColors.current
     val locale = LocalConfiguration.current.locales[0]
     val minTemp = entity.attributes?.get("min_temp")?.jsonPrimitive?.doubleOrNull ?: 15.0
@@ -6983,7 +7029,10 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
     val targetTemp = entity.attributes?.get("temperature")?.jsonPrimitive?.doubleOrNull ?: 21.0
     val hvacAction = entity.attributes?.get("hvac_action")?.jsonPrimitive?.contentOrNull
 
-    var localTarget by remember(targetTemp) { mutableFloatStateOf(targetTemp.toFloat()) }
+    // Keyed on the entity, not the target: the slider's gesture handler outlives recompositions, so a
+    // fresh state object per target made the popup freeze after its first change until reopened.
+    var localTarget by remember(entity.entity_id) { mutableFloatStateOf(targetTemp.toFloat()) }
+    LaunchedEffect(targetTemp) { localTarget = targetTemp.toFloat() }
     var localMode by remember(entity.entity_id) { mutableStateOf(entity.state) }
     LaunchedEffect(entity.state) { localMode = entity.state }
     val activeHvacMode = hvacAction ?: localMode
@@ -7025,11 +7074,68 @@ private fun ClimateControlContent(entity: HAEntity, viewModel: MainViewModel, sh
                     onValueChangeFinished = { viewModel.setClimateTemp(entity.entity_id, localTarget) },
                     gradient = hvacGradient(activeHvacMode)
                 )
+                // + / - beside the slider. Taps move the target at once and send one call after a
+                // short pause, so tapping five times does not queue five thermostat writes.
+                val step = (stepOverride ?: entity.attributes?.get("target_temp_step")?.jsonPrimitive?.doubleOrNull ?: 0.5)
+                    .toFloat().takeIf { it > 0f } ?: 0.5f
+                val scope = rememberCoroutineScope()
+                var pendingSend by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+                fun nudge(direction: Int) {
+                    val snapped = ((localTarget / step).roundToInt() + direction) * step
+                    localTarget = snapped.coerceIn(minTemp.toFloat(), maxTemp.toFloat())
+                    pendingSend?.cancel()
+                    pendingSend = scope.launch {
+                        delay(600)
+                        viewModel.setClimateTemp(entity.entity_id, localTarget)
+                    }
+                }
+                Column(
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ClimateStepButton(Icons.Default.Add, stringResource(R.string.cr_climate_step_up)) { nudge(1) }
+                    ClimateStepButton(Icons.Default.Remove, stringResource(R.string.cr_climate_step_down)) { nudge(-1) }
+                }
             }
         }
         Spacer(Modifier.height(16.dp))
         Text(if (showModes) stringResource(R.string.ui_modes_6fc3ca8) else stringResource(R.string.ui_target_f762108), color = appColors.onMuted, style = MaterialTheme.typography.labelSmall)
         ClimateModesButton(entity, onClick = { onToggleModes(!showModes) }, selected = showModes)
+    }
+}
+
+@Composable
+private fun ClimateStepButton(icon: androidx.compose.ui.graphics.vector.ImageVector, description: String, onClick: () -> Unit) {
+    val appColors = LocalHKIAppColors.current
+    Surface(
+        onClick = onClick,
+        shape = itemCornerShape(),
+        color = appColors.surface,
+        modifier = Modifier.size(56.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = description, tint = appColors.onSurface, modifier = Modifier.size(28.dp))
+        }
+    }
+}
+
+/** Step choices for the climate dialog's + / - buttons; null ("Auto") follows the thermostat. */
+@Composable
+fun ClimateStepSizeChips(selected: Double?, onSelect: (Double?) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = selected == null,
+            onClick = { onSelect(null) },
+            label = { Text(stringResource(R.string.cr_climate_step_auto)) }
+        )
+        listOf(0.1, 0.5, 1.0).forEach { option ->
+            FilterChip(
+                selected = selected == option,
+                onClick = { onSelect(option) },
+                label = { Text(if (option == 1.0) "1" else option.toString()) }
+            )
+        }
     }
 }
 
@@ -7046,6 +7152,8 @@ private fun ClimateDialogDial(
 ) {
     val appColors = LocalHKIAppColors.current
     val ringWidth = 38.dp
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
     Box(Modifier.size(280.dp), contentAlignment = Alignment.Center) {
         Canvas(
             Modifier.fillMaxSize().pointerInput(minValue, maxValue, step) {
@@ -7069,15 +7177,15 @@ private fun ClimateDialogDial(
                         val distance = (position - center).getDistance()
                         val radius = minOf(size.width, size.height) / 2f
                         dragging = distance >= radius - ringWidth.toPx() * 1.6f
-                        if (dragging) onValueChange(valueAt(position))
+                        if (dragging) currentOnValueChange(valueAt(position))
                     },
                     onDrag = { change, _ ->
                         if (dragging) {
                             change.consume()
-                            onValueChange(valueAt(change.position))
+                            currentOnValueChange(valueAt(change.position))
                         }
                     },
-                    onDragEnd = { if (dragging) onValueChangeFinished(); dragging = false },
+                    onDragEnd = { if (dragging) currentOnValueChangeFinished(); dragging = false },
                     onDragCancel = { dragging = false }
                 )
             }

@@ -478,7 +478,8 @@ fun HKIBadgeBar(
                 live.associate { e ->
                     e.entity_id to HKIButtonConfig(
                         icon = badge?.customIcon,
-                        climateDialogControl = badge?.climateDialogControl ?: "slider"
+                        climateDialogControl = badge?.climateDialogControl ?: "slider",
+                        climateStepSize = badge?.climateStepSize
                     )
                 }
             )
@@ -1138,6 +1139,7 @@ fun BadgeSettingsDialog(
     var holdAction  by remember { mutableStateOf(badge.holdActionEx ?: HKIAction(type = if (badge.holdAction == "auto") "more_info" else badge.holdAction)) }
     var customButtons by remember { mutableStateOf(badge.customButtons) }
     var climateDialogControl by remember { mutableStateOf(badge.climateDialogControl) }
+    var climateStepSize by remember { mutableStateOf(badge.climateStepSize) }
     var humidifierFanEntityId by remember { mutableStateOf(badge.humidifierFanEntityId) }
     var humidifierDeviceId by remember { mutableStateOf(badge.humidifierDeviceId) }
     var humidifierAuxEntityIds by remember { mutableStateOf(badge.humidifierAuxEntityIds) }
@@ -1329,6 +1331,8 @@ fun BadgeSettingsDialog(
                             label = { Text(stringResource(R.string.dlg_thermostat_dial)) }
                         )
                     }
+                    Text(stringResource(R.string.cr_climate_step_size), style = MaterialTheme.typography.labelLarge)
+                    com.jimz011apps.hki7.ui.screens.ClimateStepSizeChips(climateStepSize) { climateStepSize = it }
                 }
 
                 if (humidifierIds.isNotEmpty()) {
@@ -1556,6 +1560,7 @@ fun BadgeSettingsDialog(
                     holdActionEx = holdAction,
                     customButtons = customButtons,
                     climateDialogControl = climateDialogControl,
+                    climateStepSize = climateStepSize,
                     doorEntityId = null,
                     doorEntityIds = doorEntityIds.filterKeys { it in lockIds },
                     vacuumMapEntityIds = vacuumMapIds.filterKeys { it in vacuumIds },

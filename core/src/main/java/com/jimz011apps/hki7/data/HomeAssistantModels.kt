@@ -718,6 +718,8 @@ data class HKIAreaConfig(
     val roomTemperatureEntityIds: List<String> = emptyList(),
     /** Sources averaged for the room's current humidity. Supersedes the singular legacy field. */
     val roomHumidityEntityIds: List<String> = emptyList(),
+    /** Power sensors summed for the room's current power usage. Chosen by the user, never discovered. */
+    val roomPowerEntityIds: List<String> = emptyList(),
     /** True after a user changes any of the automatically discovered room sources. */
     val roomEntitiesCustomized: Boolean = false
 )
@@ -845,6 +847,8 @@ data class HKIBadge(
     val customButtons: List<HKIActionButton> = emptyList(),
     /** Climate dialog control: "slider" (default) or "dial". */
     val climateDialogControl: String = "slider",
+    /** Step used by the climate dialog's + / - buttons; null follows the entity's target_temp_step. */
+    val climateStepSize: Double? = null,
     // Lock: optional door/contact sensor(s). Legacy single-sensor + per-lock map.
     val doorEntityId: String? = null,
     val doorEntityIds: Map<String, String> = emptyMap(),       // lockEntityId -> door sensor
@@ -1413,6 +1417,9 @@ data class HKIButtonConfig(
     val stateAttribute: String? = null,
     /** Optional unit suffix appended to the shown attribute value (e.g. "°C", "%", "W", "kW"). */
     val stateUnit: String? = null,
+    /** Power sensor shown at the end of the state line ("300W"). Null: not chosen yet, so the
+     *  settings offer a PowerCalc/same-device match; blank: the user chose none. */
+    val powerEntityId: String? = null,
     /** Renders the shown value (state or attribute) as a live descending countdown, for entities
      *  whose value is a completion timestamp (washer/dryer/dishwasher "finished at" time). */
     val stateAsTimer: Boolean = false,
@@ -1496,6 +1503,8 @@ data class HKIButtonConfig(
     val climateHumiditySensorEntityId: String? = null,
     /** Climate dialog control: "slider" (default) or "dial". */
     val climateDialogControl: String = "slider",
+    /** Step used by the climate dialog's + / - buttons; null follows the entity's target_temp_step. */
+    val climateStepSize: Double? = null,
     // Weather stack items: each item is a weather card with its own style/entity/image.
     val weatherStyle: String? = null,           // "current" | "forecast" | "hourly" | "wind" | "rainmap"
     val weatherEntityId: String? = null,        // null = app's default weather entity

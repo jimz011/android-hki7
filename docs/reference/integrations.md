@@ -72,18 +72,22 @@ renaming or localising the entities does not break it.
 
 `ha-parcel-integrations`
 
-The Parcels widget. Every carrier the organisation publishes is recognised — 26 of them plus the
-aggregator: Ampère, An Post, Budbee, Cainiao, Correos, Delhivery, DHL, DPD, Dragonfly, Dynalogic,
-GLS, Helthjem, Hermes, InPost, Nova Post, Österreichische Post, Packeta, Planzer, PostNL, PostNord,
-Quickpac, Sameday, SunYou, Swiss Post, Trunkrs and Vinted Go.
+The Parcels widget. Every carrier the organisation publishes is recognised: 94 of them as of
+November 2026, from 4PX to XLCourier, including DHL and DHL NL, UPS, FedEx, USPS, PostNL, DPD, GLS,
+bpost, La Poste, Posten Bring, PostNord, InPost, Poste Italiane, Canada Post, Evri and Amazon, plus
+the Parcel Aggregator. Each has its logo bundled in the app.
 
-The integration domain is the repository name without its `ha-` prefix and with dashes as
-underscores, which is how HKI 7 matches them.
+HKI 7 matches a carrier by its integration domain from the entity registry. That domain is read
+from each integration's `manifest.json`; it is usually the repository name without `ha-`, but not
+always (`ha-4px` is `fourpx`, `ha-amazon` is `amazon_orders`).
 
-**Manual add-by-tracking-number** is detected at runtime rather than hardcoded: HKI 7 asks Home
-Assistant which integrations expose `<domain>.track_parcel` and offers the Add button only for
-those. GLS and Trunkrs additionally accept a postal code to pick the right hub. Account-based
-carriers only track what is already in the account, which is why they have no manual add.
+**Adding and removing parcels** is detected at runtime rather than hardcoded: HKI 7 asks Home
+Assistant which integrations expose `<domain>.track_parcel` and `<domain>.untrack_parcel`. Adding
+always lets you choose the carrier, from every integration that can add a parcel, and shows the
+extra fields that integration asks for (postal code, direction, country). An open parcel can be
+removed with `untrack_parcel`; a parcel shown through the aggregator is removed from the carrier it
+came from. Account-based carriers (PostNL, DHL NL, DPD, Vinted Go and a few others) only track what
+is already in the account, which is why they have no manual add or remove.
 
 ### Afvalbeheer
 

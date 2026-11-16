@@ -1685,7 +1685,10 @@ private fun ClimateDeviceCard(entity: HAEntity, viewModel: MainViewModel, corner
     val presetModes = entity.fanPresetModes // same "preset_modes" attribute as fans
 
     // Optimistic target: the stepper responds instantly, HA state catches up on refresh.
-    var localTarget by remember(targetTemp) { mutableFloatStateOf((targetTemp ?: 21.0).toFloat()) }
+    // Keyed on the entity, not the target: a gesture handler that outlives a recomposition must keep
+    // writing into the same state object, or the control freezes after the first change lands.
+    var localTarget by remember(entity.entity_id) { mutableFloatStateOf((targetTemp ?: 21.0).toFloat()) }
+    LaunchedEffect(targetTemp) { targetTemp?.let { localTarget = it.toFloat() } }
     var expanded by rememberSaveable(entity.entity_id) { mutableStateOf(false) }
     val hasExtras = entity.fanModes.isNotEmpty() || entity.swingModes.isNotEmpty() ||
         entity.swingHorizontalModes.isNotEmpty() || presetModes.isNotEmpty()
@@ -1922,7 +1925,10 @@ private fun ThermostatDialCard(entity: HAEntity, viewModel: MainViewModel, corne
     val hasTarget = targetTemp != null && entity.state != "off"
 
     // Optimistic target: the dial responds instantly, HA state catches up on refresh.
-    var localTarget by remember(targetTemp) { mutableFloatStateOf((targetTemp ?: 21.0).toFloat()) }
+    // Keyed on the entity, not the target: a gesture handler that outlives a recomposition must keep
+    // writing into the same state object, or the control freezes after the first change lands.
+    var localTarget by remember(entity.entity_id) { mutableFloatStateOf((targetTemp ?: 21.0).toFloat()) }
+    LaunchedEffect(targetTemp) { targetTemp?.let { localTarget = it.toFloat() } }
     var modesOpen by remember { mutableStateOf(false) }
 
     Surface(
@@ -2489,7 +2495,8 @@ private fun HumidifierCard(entity: HAEntity, viewModel: MainViewModel, fanEntity
     val current = entity.currentHumidity
     val minHum = (entity.minHumidity ?: 0).toFloat()
     val maxHum = (entity.maxHumidity ?: 100).toFloat()
-    var localTarget by remember(target) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
+    var localTarget by remember(entity.entity_id) { mutableFloatStateOf((target ?: 50.0).toFloat()) }
+    LaunchedEffect(target) { target?.let { localTarget = it.toFloat() } }
 
     Surface(
         modifier = Modifier.fillMaxWidth()

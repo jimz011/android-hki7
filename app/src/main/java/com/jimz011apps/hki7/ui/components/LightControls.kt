@@ -45,6 +45,10 @@ fun VerticalSlider(
 ) {
     val appColors = LocalHKIAppColors.current
     val resolvedTrackColor = trackColor ?: appColors.surface
+    // pointerInput(Unit) never restarts, so read the callbacks through updated state or a caller whose
+    // lambdas change (e.g. after Home Assistant confirms a new value) gets stuck on the first ones.
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
     BoxWithConstraints(
         modifier = modifier
             .height(height)
@@ -53,17 +57,17 @@ fun VerticalSlider(
             .background(resolvedTrackColor)
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDragEnd = { onValueChangeFinished() }
+                    onDragEnd = { currentOnValueChangeFinished() }
                 ) { change, _ ->
                     val newValue = 1f - (change.position.y / size.height).coerceIn(0f, 1f)
-                    onValueChange(newValue)
+                    currentOnValueChange(newValue)
                 }
             }
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     val newValue = 1f - (offset.y / size.height).coerceIn(0f, 1f)
-                    onValueChange(newValue)
-                    onValueChangeFinished()
+                    currentOnValueChange(newValue)
+                    currentOnValueChangeFinished()
                 }
             }
     ) {

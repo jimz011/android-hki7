@@ -24,6 +24,7 @@ import com.jimz011apps.hki7.data.HKIAreaConfig
 import com.jimz011apps.hki7.data.HKIBadgeBarConfig
 import com.jimz011apps.hki7.ui.MainViewModel
 import com.jimz011apps.hki7.ui.RoomStatusRoles
+import com.jimz011apps.hki7.ui.isPowerSensor
 import com.jimz011apps.hki7.ui.utils.MdiIcon
 import com.jimz011apps.hki7.ui.theme.LocalHKIAppColors
 
@@ -83,6 +84,7 @@ fun RoomConfigDialog(
             )
         )
     }
+    var roomPowerEntityIds by remember(config) { mutableStateOf(normalizeRoomEntityIds(config.roomPowerEntityIds)) }
     var roomEntityPicker by remember { mutableStateOf<String?>(null) }
     var showIconPickerRoom by remember { mutableStateOf(false) }
     var section by remember { mutableStateOf("menu") }
@@ -119,6 +121,7 @@ fun RoomConfigDialog(
         val selectedIds = when (picker) {
             ROOM_TEMPERATURE_PICKER -> roomTemperatureEntityIds.toSet()
             ROOM_HUMIDITY_PICKER -> roomHumidityEntityIds.toSet()
+            ROOM_POWER_PICKER -> roomPowerEntityIds.toSet()
             else -> roomStatusEntityIds[picker].orEmpty().toSet()
         }
         AdvancedEntitySearchDialog(
@@ -131,6 +134,7 @@ fun RoomConfigDialog(
                 when (picker) {
                     ROOM_TEMPERATURE_PICKER -> roomTemperatureEntityIds = normalizeRoomEntityIds(ids)
                     ROOM_HUMIDITY_PICKER -> roomHumidityEntityIds = normalizeRoomEntityIds(ids)
+                    ROOM_POWER_PICKER -> roomPowerEntityIds = normalizeRoomEntityIds(ids)
                     else -> roomStatusEntityIds = roomStatusEntityIds.toMutableMap().apply {
                         if (ids.isEmpty()) remove(picker) else put(picker, ids.distinct())
                     }
@@ -336,6 +340,16 @@ fun RoomConfigDialog(
                         onClear = { roomHumidityEntityIds = emptyList() },
                         onChange = { roomEntityPicker = ROOM_HUMIDITY_PICKER }
                     )
+
+                    HorizontalDivider()
+                    SettingsSubcategory(stringResource(R.string.cr_room_energy), stringResource(R.string.cr_room_energy_summary))
+                    RoomEntitySelectionRow(
+                        label = stringResource(R.string.cr_room_power_usage),
+                        selection = selectedEntitySummary(roomPowerEntityIds, allEntities),
+                        hasSelection = roomPowerEntityIds.isNotEmpty(),
+                        onClear = { roomPowerEntityIds = emptyList() },
+                        onChange = { roomEntityPicker = ROOM_POWER_PICKER }
+                    )
                 }
 
                 if (section == "badgebar") {
@@ -463,6 +477,7 @@ fun RoomConfigDialog(
                         roomStatusEntityIds = normalizedRoomStatusEntityIds,
                         roomTemperatureEntityIds = normalizedRoomTemperatureEntityIds,
                         roomHumidityEntityIds = normalizedRoomHumidityEntityIds,
+                        roomPowerEntityIds = normalizeRoomEntityIds(roomPowerEntityIds),
                         roomTemperatureEntityId = null,
                         roomHumidityEntityId = null,
                         roomEntitiesCustomized = if (roomEntitiesChanged) true else config.roomEntitiesCustomized
@@ -543,6 +558,7 @@ private fun RoomEntitySelectionRow(
 
 private const val ROOM_TEMPERATURE_PICKER = "__room_temperature__"
 private const val ROOM_HUMIDITY_PICKER = "__room_humidity__"
+private const val ROOM_POWER_PICKER = "__room_power__"
 
 @Composable
 private fun roomEntityLabel(role: String): String = when (role) {
@@ -557,6 +573,7 @@ private fun roomEntityLabel(role: String): String = when (role) {
     RoomStatusRoles.FIRE -> stringResource(R.string.dlg_fire)
     ROOM_TEMPERATURE_PICKER -> stringResource(R.string.dlg_temperature)
     ROOM_HUMIDITY_PICKER -> stringResource(R.string.dlg_humidity)
+    ROOM_POWER_PICKER -> stringResource(R.string.cr_room_power_usage)
     else -> role.replace('_', ' ').replaceFirstChar { it.uppercase() }
 }
 
@@ -607,6 +624,8 @@ private fun roomEntityCandidates(
 
         ROOM_HUMIDITY_PICKER ->
             domain == "climate" || (domain == "sensor" && deviceClass == "humidity")
+
+        ROOM_POWER_PICKER -> domain == "sensor" && entity.isPowerSensor()
 
         else -> false
     }

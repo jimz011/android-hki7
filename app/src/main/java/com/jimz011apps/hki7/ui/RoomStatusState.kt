@@ -63,10 +63,12 @@ internal data class RoomStatusIndicator(
 internal data class RoomStatusSummary(
     val indicators: List<RoomStatusIndicator>,
     val temperature: String?,
-    val humidity: String?
+    val humidity: String?,
+    /** Summed power usage, e.g. "440W"; null when no power source is chosen or none reads. */
+    val power: String? = null
 ) {
     val environmentText: String?
-        get() = listOfNotNull(temperature, humidity)
+        get() = listOfNotNull(temperature, humidity, power)
             .takeIf { it.isNotEmpty() }
             ?.joinToString(" / ")
 }
@@ -166,7 +168,8 @@ internal fun resolveRoomStatus(
             entityIds = config.roomHumiditySourceIds(),
             entitiesById = entitiesById,
             type = RoomMeasurementType.HUMIDITY
-        )
+        ),
+        power = roomPower(config.roomPowerEntityIds, entitiesById)
     )
 }
 
@@ -223,7 +226,9 @@ internal fun resolveWholeHomeStatus(
             entityIds = configs.flatMap(HKIAreaConfig::roomHumiditySourceIds),
             entitiesById = entitiesById,
             type = RoomMeasurementType.HUMIDITY
-        )
+        ),
+        // Whole home adds every room's power up; a sensor shared by two rooms counts once.
+        power = roomPower(configs.flatMap(HKIAreaConfig::roomPowerEntityIds), entitiesById)
     )
 }
 
@@ -283,7 +288,11 @@ internal fun HKIAreaConfig.roomEntityIds(): List<String> = buildList {
         roomHumidityEntityIds.takeIf { it.isNotEmpty() }
             ?: listOfNotNull(roomHumidityEntityId)
     )
+    addAll(roomPowerEntityIds)
 }.filter(String::isNotBlank).distinct()
+
+private fun roomPower(entityIds: List<String>, entitiesById: Map<String, HAEntity>): String? =
+    totalPowerWatts(entityIds.distinct().mapNotNull(entitiesById::get))?.let(::formatPowerWatts)
 
 private fun HKIAreaConfig.roomTemperatureSourceIds(): List<String> =
     roomTemperatureEntityIds.takeIf { it.isNotEmpty() }
