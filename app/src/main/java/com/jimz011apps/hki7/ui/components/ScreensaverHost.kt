@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -204,6 +205,10 @@ private fun ScreensaverScreen(
         )
         val panel = settings.isClockPanel()
         val barHeight = if (!panel) 0.dp else if (maxWidth > maxHeight) maxHeight * 0.44f else maxHeight * 0.52f
+        val width = this.maxWidth
+        val height = this.maxHeight
+        val timeSize = if (width * 0.26f < height * 0.34f) width * 0.26f else height * 0.34f
+        val dateSize = if (width * 0.034f < 28.dp) width * 0.034f else 28.dp
         Column(
             Modifier
                 .fillMaxSize()
@@ -215,7 +220,14 @@ private fun ScreensaverScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
-                ScreensaverClock(clockNow, dateNow, use24h, locale)
+                ScreensaverClock(
+                    clockNow,
+                    dateNow,
+                    use24h,
+                    locale,
+                    timeSize = timeSize,
+                    dateSize = dateSize,
+                )
             }
             if (panel) {
                 ScreensaverInfoBar(
@@ -278,7 +290,14 @@ private fun screensaverFallbackUrl(seed: Long): String {
 }
 
 @Composable
-private fun ScreensaverClock(time: LocalTime, date: LocalDate, use24h: Boolean, locale: Locale) {
+private fun ScreensaverClock(
+    time: LocalTime,
+    date: LocalDate,
+    use24h: Boolean,
+    locale: Locale,
+    timeSize: Dp,
+    dateSize: Dp,
+) {
     val hour = if (use24h) time.hour else ((time.hour + 11) % 12) + 1
     val minutes = "%02d".format(time.minute)
     val seconds = "%02d".format(time.second)
@@ -290,22 +309,22 @@ private fun ScreensaverClock(time: LocalTime, date: LocalDate, use24h: Boolean, 
             Text(
                 text = "%02d:%s".format(hour, minutes),
                 color = ScreensaverInk,
-                fontSize = 92.sp,
+                fontSize = timeSize.value.sp,
                 fontWeight = FontWeight.Light,
                 modifier = Modifier.shadow(8.dp, ambientColor = Color.Black, spotColor = Color.Black),
             )
             Text(
                 text = seconds,
                 color = ScreensaverInk,
-                fontSize = 28.sp,
+                fontSize = (timeSize.value * 0.28f).sp,
                 fontWeight = FontWeight.Light,
-                modifier = Modifier.padding(start = 6.dp, top = 14.dp),
+                modifier = Modifier.padding(start = 6.dp, top = timeSize * 0.14f),
             )
         }
         Text(
             text = dateText,
             color = ScreensaverInk,
-            fontSize = 26.sp,
+            fontSize = dateSize.value.sp,
             fontWeight = FontWeight.SemiBold,
         )
     }

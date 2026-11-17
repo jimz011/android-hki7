@@ -16,6 +16,8 @@ Wall-tablet extras: native camera popups, a screensaver, and optional device sen
 - The wall-tablet camera stream no longer crashes on tablets where a Service has no associated display (Samsung Tab A7 / Android 12): rotation is read from DisplayManager, and a CameraX bind failure is reported in settings instead of taking down the app.
 - JSON backups include screensaver, camera-popup and device-camera settings. Older backups without those fields leave the device values unchanged on restore.
 - Enabling the tablet camera stream no longer dies on the first start: the service used to read the still-unpersisted "off" value from disk and stop itself. Turning it off still goes through the explicit stop path.
+- Restoring a backup after reinstalling keeps the screensaver (including calendars), camera popups and tablet-camera settings. They used to stay attached to the previous sign-in and look empty on the new one.
+- The screensaver clock scales with the tablet, the same proportion as the Casora wall clock (`min(26vw, 34vh)`), instead of a fixed 92sp.
 
 ## 1.3.1
 

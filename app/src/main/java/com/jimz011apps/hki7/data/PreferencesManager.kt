@@ -961,10 +961,14 @@ class PreferencesManager(
     suspend fun ensureHomeAssistantInstanceStore() {
         if (instanceScopeId != null) return
         context.dataStore.edit { preferences ->
-            if (storedInstances(preferences).isNotEmpty()) return@edit
-            val legacy = legacyInstanceFrom(preferences) ?: return@edit
-            saveInstances(preferences, listOf(legacy))
-            preferences[activeHomeAssistantInstanceIdKey] = legacy.id
+            if (storedInstances(preferences).isEmpty()) {
+                val legacy = legacyInstanceFrom(preferences)
+                if (legacy != null) {
+                    saveInstances(preferences, listOf(legacy))
+                    preferences[activeHomeAssistantInstanceIdKey] = legacy.id
+                }
+            }
+            adoptRestoredWallTabletSettings(preferences)
         }
     }
 
@@ -1261,6 +1265,7 @@ class PreferencesManager(
             backup.cameraPopupSettings?.let { p[cameraPopupSettingsKey] = appJson.encodeToString(it) }
             backup.screensaverSettings?.let { p[screensaverSettingsKey] = appJson.encodeToString(it) }
             backup.devicePanelSettings?.let { p[devicePanelSettingsKey] = appJson.encodeToString(it) }
+            adoptRestoredWallTabletSettings(p)
         }
     }
 
@@ -1973,6 +1978,29 @@ class PreferencesManager(
             val instanceId = resolvePersistInstanceId(preferences, store.byInstanceId.keys) ?: return@edit
             val next = store.copy(byInstanceId = store.byInstanceId + (instanceId to settings))
             preferences[devicePanelSettingsKey] = appJson.encodeToString(next)
+        }
+    }
+
+    /** Moves screensaver, camera-popup and device-camera settings onto the active server when a
+     * reinstall left them under the previous server id. */
+    private fun adoptRestoredWallTabletSettings(preferences: MutablePreferences) {
+        val activeId = preferences[activeHomeAssistantInstanceIdKey]
+            ?: instancesFrom(preferences).firstOrNull()?.id
+        val known = instancesFrom(preferences).map { it.id }.toSet()
+        val camera = decodeBackup(preferences[cameraPopupSettingsKey], CameraPopupStore())
+        val cameraNext = adoptWallTabletSettings(camera.byInstanceId, activeId, known)
+        if (cameraNext !== camera.byInstanceId) {
+            preferences[cameraPopupSettingsKey] = appJson.encodeToString(camera.copy(byInstanceId = cameraNext))
+        }
+        val screensaver = decodeBackup(preferences[screensaverSettingsKey], ScreensaverStore())
+        val screensaverNext = adoptWallTabletSettings(screensaver.byInstanceId, activeId, known)
+        if (screensaverNext !== screensaver.byInstanceId) {
+            preferences[screensaverSettingsKey] = appJson.encodeToString(screensaver.copy(byInstanceId = screensaverNext))
+        }
+        val device = decodeBackup(preferences[devicePanelSettingsKey], DevicePanelStore())
+        val deviceNext = adoptWallTabletSettings(device.byInstanceId, activeId, known)
+        if (deviceNext !== device.byInstanceId) {
+            preferences[devicePanelSettingsKey] = appJson.encodeToString(device.copy(byInstanceId = deviceNext))
         }
     }
 

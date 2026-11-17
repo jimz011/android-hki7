@@ -74,6 +74,8 @@ jobs:
           echo "title=HKI 7 ${SHORT}" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APK
+        env:
+          HKI7_CI_DEBUG_KEYSTORE: ${{ github.workspace }}/ci/hki7-debug.keystore
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon --stacktrace assembleDebug
