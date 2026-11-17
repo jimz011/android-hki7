@@ -19,6 +19,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    val ciDebugKeystore = System.getenv("HKI7_CI_DEBUG_KEYSTORE")?.let { file(it) }
+    if (ciDebugKeystore != null) {
+        signingConfigs {
+            create("ciDebug") {
+                storeFile = ciDebugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
+    }
     buildTypes {
         debug {
             // Installs alongside a release build instead of colliding with it. The signatures
@@ -31,6 +42,11 @@ android {
             // unavailable to debug builds (different signing certificate), so nothing regresses.
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            // Fork CI sets this so each tagged test APK uses the same debug key and can update
+            // the previous one. Local and Play builds keep the default debug or release key.
+            if (ciDebugKeystore != null) {
+                signingConfig = signingConfigs.getByName("ciDebug")
+            }
         }
         release {
             // R8 full-mode shrinking + obfuscation + resource shrinking. Keep rules that the
