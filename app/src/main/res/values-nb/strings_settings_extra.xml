@@ -7,7 +7,6 @@
     <string name="settings_camera_popup_add">Legg til kamera-popup</string>
     <string name="settings_camera_popup_delete">Slett kamera-popup</string>
     <string name="settings_camera_popup_name">Navn</string>
-    <string name="settings_camera_popup_trigger">Trigger</string>
     <string name="settings_camera_popup_camera">Kamera</string>
     <string name="settings_camera_popup_choose">Velg…</string>
     <string name="settings_camera_popup_pick_trigger">Velg bevegelses- eller persontrigger</string>
@@ -19,8 +18,6 @@
     <string name="settings_camera_popup_helper_clear">Fjern hjelper</string>
     <string name="settings_camera_popup_after">Fra</string>
     <string name="settings_camera_popup_before">Til</string>
-    <string name="settings_camera_popup_time_example_after">06:00</string>
-    <string name="settings_camera_popup_time_example_before">00:00</string>
     <string name="settings_camera_popup_time_hint">Valgfritt. Bruk 24-timers klokke. Fra 06:00 til 00:00 gjelder fra morgenen til midnatt, samme regel som i Home Assistant.</string>
     <string name="settings_camera_popup_fullscreen">Fullskjerm-video</string>
     <string name="settings_camera_popup_fullscreen_subtitle">Vis bare strømmen, tilpasset skjerm og retning. Trykk hvor som helst for å lukke.</string>
@@ -30,7 +27,6 @@
     <string name="settings_screensaver_enable">Slå på skjermsparer</string>
     <string name="settings_screensaver_enable_subtitle">Vis veggklokken når denne enheten er i ro</string>
     <string name="settings_screensaver_timeout">Tidsavbrudd: %1$d sekunder</string>
-    <string name="settings_screensaver_layout">Layout</string>
     <string name="settings_screensaver_layout_panel">Klokke og infofelt</string>
     <string name="settings_screensaver_layout_clock">Kun klokke</string>
     <string name="settings_screensaver_background">Bakgrunn</string>

@@ -1502,7 +1502,7 @@
     <string name="ui_backspace_88d130a">Tilbake</string>
     <string name="ui_backup_and_restore_a593246">Sikkerhetskopiering og gjenoppretting</string>
     <string name="ui_backup_dd96994">Sikkerhetskopiering</string>
-    <string name="ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be">Sikkerhetskopier inneholder dashbord, utseende, skjermsparer, kamera-popup og enhetskamera. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.</string>
+    <string name="ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be">Sikkerhetskopier inneholder dashbord, utseende, skjermsparer, kamera-popup og enhet-kamera konfigurasjon. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.</string>
     <string name="ui_badge_bar_layout_4b4dfdd">Utforming av merkefelt</string>
     <string name="ui_bars_ad5fb3b">Barer</string>
     <string name="ui_batt_679d0aa">Batt</string>
@@ -3036,6 +3036,10 @@
     <string name="settings_extra_events_hidden_title">Skjul deg for denne personen</string>
     <string name="settings_extra_events_notifications_hint">Hendelser-fanen i varslingsskuffen viser nylig aktivitet for enhetene familieadministratoren din valgte. Det er satt for hele familien i Familiedeling, ikke per enhet.</string>
     <string name="settings_extra_events_open_family_sharing">Åpne familiedeling</string>
+    <string name="settings_camera_popup_trigger">Avtrekker</string>
+    <string name="settings_camera_popup_time_example_after">06:00</string>
+    <string name="settings_camera_popup_time_example_before">00:00</string>
+    <string name="settings_screensaver_layout">Oppsett</string>
     <string name="settings_extra_room_follow_title">Rommet følger</string>
     <string name="settings_extra_room_follow_description">Velg romtilstedeværelsessensoren som sporer hver persons telefon, for eksempel en ESPresense-sensor. Appen åpner rommet de er i og tilbyr å følge dem mens de beveger seg.</string>
     <string name="settings_extra_room_follow_sensor">Tilstedeværelsessensor</string>
