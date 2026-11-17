@@ -1646,6 +1646,10 @@ fun MainApp(prefs: PreferencesManager, sharedViewModel: MainViewModel? = null) {
             onDismiss = { fullscreenCamera = null }
         )
 
+        // Deliberately after the floating bottom stack. Compose paints later siblings on top; hosting
+        // this before it left HKI's navigation bar visible over the native WebView even though none
+        // of those buttons could be used. Only the screensaver and camera popup below may sit above
+        // it, and this page's BackHandler still has priority over the NavHost while it is open.
         haPage?.let { (path, pageTitle) ->
             val haAccessToken by prefs.accessToken.collectAsState(initial = null)
             val haTokenExpiry by prefs.accessTokenExpiry.collectAsState(initial = null)
