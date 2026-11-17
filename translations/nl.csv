@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (optioneel),app fills in %1$s — ke
 parcel_field_postal_code,,Postal code,Postcode,
 parcel_field_direction,,Direction,Richting,
 parcel_field_country,,Country,Land,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Camerapop-ups: wanneer een bewegings-, persoons- of deurbelsensor afgaat, laat HKI 7 die camera live zien en sluit deze na een time-out. Stel ze in onder Instellingen › Dashboard › Pop-ups.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Nieuwe screensaver voor wandtablets: na een time-out van inactiviteit een klok op volledig scherm met optioneel weer, binnenklimaat, kalender en snelkoppelingen (Instellingen › Screensaver).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Instellingen › Apparaat kan scherm aan/uit, helderheid, wifi en lokale IP-sensoren toevoegen aan dit apparaat in Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Deel optioneel de camera van deze tablet als een met tokens beveiligde stream op uw lokale netwerk, voor een algemene camera in Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Back-ups bevatten nu een screensaver, camerapop-up en camera-instellingen van het apparaat.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Opgelost: de thermostaatschuifregelaar in de klimaatpopup bleef na de eerste wijziging hangen tot de popup opnieuw werd geopend.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nieuwe + en − knoppen naast de thermostaatschuifregelaar. Kies hun stapgrootte (0,1, 0,5 of 1 graad) in de popup-instellingen.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Kamers kunnen hun stroomverbruik tonen: kies vermogenssensoren onder Energie in de kamerinstellingen en de header toont 21°C / 45% / 440W.,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Een back-up maken…,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Back-up maken en herstellen,
 ui_backup_dd96994,,Backup,Back-up,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Back-ups bevatten alleen dashboard- en uiterlijkconfiguratie. Verbindingsgegevens, app-machtigingen, locatiestatus en meldingsgeschiedenis zijn niet inbegrepen.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Back-ups bevatten alleen dashboard- en uiterlijkconfiguratie. Verbindingsgegevens, app-machtigingen, locatiestatus en meldingsgeschiedenis zijn niet inbegrepen.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Indeling van de badgebalk,
 ui_bars_ad5fb3b,,Bars,Staven,
 ui_batt_679d0aa,,Batt,Batterij,

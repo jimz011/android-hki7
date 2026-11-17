@@ -662,6 +662,11 @@ parcel_optional_field,,%1$s (optional),%1$s (volitelné),app fills in %1$s — k
 parcel_field_postal_code,,Postal code,PSČ,
 parcel_field_direction,,Direction,Směr,
 parcel_field_country,,Country,Země,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Vyskakovací okna kamery: když se spustí senzor pohybu, osoby nebo zvonku, HKI 7 ukáže kameru živě a po uplynutí časového limitu ji zavře. Nastavte je v části Nastavení › Ovládací panel › Vyskakovací okna.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Nový spořič obrazovky pro nástěnné tablety: po nečinnosti hodiny přes celou obrazovku s volitelným počasím, vnitřním klimatem, kalendářem a zkratkami (Nastavení › Spořič obrazovky).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Nastavení › Zařízení může k tomuto zařízení v Home Assistant přidat zapínání/vypínání obrazovky, jas, Wi-Fi a místní IP senzory.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",Volitelně sdílejte kameru tohoto tabletu jako stream chráněný tokeny ve vaší místní síti pro generickou kameru v Home Assistant.,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Zálohy nyní zahrnují spořič obrazovky, vyskakovací okno fotoaparátu a nastavení fotoaparátu zařízení.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Opraveno: posuvník termostatu v okně klimatu po první změně zamrzl, dokud se okno znovu neotevřelo.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nová tlačítka + a − vedle posuvníku termostatu. Jejich krok (0,1, 0,5 nebo 1 stupeň) zvolíte v nastavení okna.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Místnosti mohou zobrazovat spotřebu elektřiny: v nastavení místnosti vyberte senzory výkonu v části Energie a záhlaví zobrazí 21°C / 45% / 440W.,
@@ -1791,7 +1796,7 @@ ui_backing_up_f600558,,Backing up…,Zálohování…,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Zálohování a obnovení,
 ui_backup_dd96994,,Backup,Zálohování,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Zálohy obsahují pouze konfiguraci řídicího panelu a vzhledu. Podrobnosti připojení, oprávnění aplikací, stav polohy a historie oznámení nejsou zahrnuty.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Zálohy obsahují pouze konfiguraci řídicího panelu a vzhledu. Podrobnosti připojení, oprávnění aplikací, stav polohy a historie oznámení nejsou zahrnuty.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Rozložení lišty odznaku,
 ui_bars_ad5fb3b,,Bars,Bary,
 ui_batt_679d0aa,,Batt,Batt,

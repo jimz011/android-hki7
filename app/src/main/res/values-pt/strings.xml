@@ -3969,6 +3969,14 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">Não permitido — Home Assistant não pode ser acedido diretamente no seu Wi-Fi</string>
     <string name="update_see_changes">Veja o que mudou</string>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Pop-ups da câmara: quando um sensor de movimento, pessoa ou campainha é acionado, HKI 7 mostra a câmara em direto e fecha-a após um tempo limite. Configure-os em Definições › Painel › Pop-ups.</item>
+        <item>Novo protetor de ecrã para tablets de parede: após um tempo limite de inatividade, um relógio de ecrã inteiro com meteorologia opcional, meteorologia interior, calendário e atalhos (Definições › Protetor de ecrã).</item>
+        <item>Definições › O dispositivo pode adicionar ecrã ligado/desligado, brilho, Wi-Fi e sensores IP locais a este dispositivo em Home Assistant.</item>
+        <item>Opcionalmente, partilhe a câmara deste tablet como um stream protegido por tokens na sua rede local, para uma câmara genérica em Home Assistant.</item>
+        <item>Os backups incluem agora o protetor de ecrã, o pop-up da câmara e as definições da câmara do dispositivo.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Corrigido: o controlo deslizante do termóstato na janela de clima ficava bloqueado após a primeira alteração até a janela ser reaberta.</item>
         <item>Novos botões + e − ao lado do controlo deslizante do termóstato. Escolha o passo (0,1, 0,5 ou 1 grau) nas definições da janela.</item>

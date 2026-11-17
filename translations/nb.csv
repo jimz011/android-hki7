@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (valgfritt),app fills in %1$s — ke
 parcel_field_postal_code,,Postal code,Postnummer,
 parcel_field_direction,,Direction,Retning,
 parcel_field_country,,Country,Land,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Popup-vinduer for kamera: når en bevegelses-, person- eller ringeklokkesensor utløses, viser HKI 7 at kameraet er i live og lukker det etter en tidsavbrudd. Sett dem opp under Innstillinger › Dashboard › Popups.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Ny skjermsparer for nettbrett: etter en inaktiv tidsavbrudd en fullskjermklokke med valgfritt vær, inneklima, kalender og snarveier (Innstillinger › Skjermsparer).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Innstillinger › Enheten kan legge til skjerm på/av, lysstyrke, Wi-Fi og lokale IP-sensorer til denne enheten i Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Du kan eventuelt dele dette nettbrettets kamera som en token-beskyttet strøm på ditt lokale nettverk, for et generisk kamera i Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Sikkerhetskopier inkluderer nå skjermsparer, popup-vinduer og enhetskamerainnstillinger.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Rettet: termostatglidebryteren i klimavinduet låste seg etter første endring til vinduet ble åpnet på nytt.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nye + og − knapper ved siden av termostatglidebryteren. Velg trinnet (0,1, 0,5 eller 1 grad) i innstillingene for vinduet.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Rom kan vise strømforbruket sitt: velg effektsensorer under Energi i rominnstillingene, så viser toppteksten 21°C / 45% / 440W.",
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Sikkerhetskopierer …,
 ui_backspace_88d130a,,Backspace,Tilbake,
 ui_backup_and_restore_a593246,,Backup and Restore,Sikkerhetskopiering og gjenoppretting,
 ui_backup_dd96994,,Backup,Sikkerhetskopiering,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Sikkerhetskopier inneholder kun dashbord og utseendekonfigurasjon. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Sikkerhetskopier inneholder dashbord, utseende, skjermsparer, kamera-popup og enhetskamera. Tilkoblingsdetaljer, apptillatelser, posisjonsstatus og varslingshistorikk er ikke inkludert.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Utforming av merkefelt,
 ui_bars_ad5fb3b,,Bars,Barer,
 ui_batt_679d0aa,,Batt,Batt,

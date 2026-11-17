@@ -44,6 +44,14 @@
         <item>Fixade temperatur- och energiavläsningar på tjeckiska, slovakiska, grekiska, norska, svenska och danska, där siffror visade fel eller kunde krascha skärmen.</item>
         <item>Något dåligt formulerat på ditt språk? Varje språk är nu en enda fil som du kan korrigera på GitHub, ingen kod behövs.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kamerapopups: när en rörelse-, person- eller dörrklocksensor avfyras visar HKI 7 den kameran live och stänger den efter en timeout. Ställ in dem under Inställningar › Dashboard › Popups.</item>
+        <item>Ny skärmsläckare för surfplattor: efter en inaktiv timeout en helskärmsklocka med valfritt väder, inomhusklimat, kalender och genvägar (Inställningar › Skärmsläckare).</item>
+        <item>Inställningar › Enheten kan lägga till skärm på/av, ljusstyrka, Wi-Fi och lokala IP-sensorer till den här enheten i Home Assistant.</item>
+        <item>Dela eventuellt den här surfplattans kamera som en token-skyddad ström på ditt lokala nätverk, för en generisk kamera i Home Assistant.</item>
+        <item>Säkerhetskopieringar inkluderar nu skärmsläckare, kamera popup och enhetskamerainställningar.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Åtgärdat: termostatreglaget i klimatfönstret fastnade efter första ändringen tills fönstret öppnades igen.</item>
         <item>Nya knappar + och − bredvid termostatreglaget. Välj deras steg (0,1, 0,5 eller 1 grad) i fönstrets inställningar.</item>

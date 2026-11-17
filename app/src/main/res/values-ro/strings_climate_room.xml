@@ -27,6 +27,14 @@
         <item>S-au remediat citirile de temperatură și energie în cehă, slovacă, greacă, norvegiană, suedeză și daneză, unde numerele erau afișate greșit sau puteau bloca ecranul.</item>
         <item>Ceva scris prost în limba ta? Fiecare limbă este acum un singur fișier pe care îl puteți corecta pe GitHub, fără a fi nevoie de cod.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Ferestre de tip pop-up pentru cameră: când se declanșează un senzor de mișcare, de persoană sau de sonerie, HKI 7 arată acea cameră în direct și o închide după un timeout. Configurați-le în Setări › Tabloul de bord › Ferestre pop-up.</item>
+        <item>Nou screensaver pentru tablete de perete: după o perioadă de inactivitate, un ceas pe ecran complet cu vreme opțională, climă interioară, calendar și comenzi rapide (Setări › Screensaver).</item>
+        <item>Setări › Dispozitivul poate adăuga ecran pornit/oprit, luminozitate, Wi-Fi și senzori IP locali la acest dispozitiv în Home Assistant.</item>
+        <item>Opțional, partajați camera acestei tablete ca flux protejat prin simbol în rețeaua locală, pentru o cameră generică în Home Assistant.</item>
+        <item>Backup-urile includ acum screensaverul, fereastra pop-up și setările camerei dispozitivului.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Remediat: glisorul termostatului din fereastra de climă se bloca după prima modificare până la redeschiderea ferestrei.</item>
         <item>Butoane noi + și − lângă glisorul termostatului. Alege pasul lor (0,1, 0,5 sau 1 grad) în setările ferestrei.</item>

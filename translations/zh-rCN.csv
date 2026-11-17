@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s（可选）,app fills in %1$s — ke
 parcel_field_postal_code,,Postal code,邮政编码,
 parcel_field_direction,,Direction,方向,
 parcel_field_country,,Country,国家/地区,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.",摄像头弹出窗口：当运动、人或门铃传感器触发时，HKI 7 显示摄像头处于活动状态并在超时后将其关闭。在设置 › 仪表板 › 弹出窗口下进行设置。,don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).",适用于壁式平板电脑的新屏幕保护程序：闲置超时后，全屏时钟显示可选天气、室内气候、日历和快捷方式（设置 > 屏幕保护程序）。,
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.",设置 › 设备可以在 Home Assistant 中向该设备添加屏幕开/关、亮度、Wi-Fi 和本地 IP 传感器。,don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",（可选）将此平板电脑的摄像头共享为本地网络上受令牌保护的流，以获取 Home Assistant 中的通用摄像头。,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.",备份现在包括屏幕保护程序、相机弹出窗口和设备相机设置。,
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,已修复：气候弹窗中的恒温器滑块在第一次更改后卡住，直到重新打开弹窗。,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",恒温器滑块旁新增 + 和 − 按钮。可在弹窗设置中选择步长（0.1、0.5 或 1 度）。,
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,房间可以显示用电功率：在房间设置的“能源”中选择功率传感器，标题会显示 21°C / 45% / 440W。,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,正在备份…,
 ui_backspace_88d130a,,Backspace,退格,
 ui_backup_and_restore_a593246,,Backup and Restore,备份与恢复,
 ui_backup_dd96994,,Backup,备份,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.",备份仅包含仪表盘和外观配置，不包括连接详情、应用权限、位置状态和通知历史。,
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.",备份仅包含仪表盘和外观配置，不包括连接详情、应用权限、位置状态和通知历史。,
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,徽章栏布局,
 ui_bars_ad5fb3b,,Bars,条形,
 ui_batt_679d0aa,,Batt,电量,

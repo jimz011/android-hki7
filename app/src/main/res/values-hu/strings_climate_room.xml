@@ -27,6 +27,14 @@
         <item>Rögzített hőmérséklet- és energiaértékek cseh, szlovák, görög, norvég, svéd és dán nyelven, ahol a számok rosszul mutattak, vagy összeomolhatják a képernyőt.</item>
         <item>Valami rosszul van megfogalmazva a nyelveden? Mostantól minden nyelv egyetlen fájl, amelyet kijavíthat a GitHubon, nincs szükség kódra.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kamera előugró ablakok: ha egy mozgás-, személy- vagy ajtócsengő-érzékelő beindul, a HKI 7 élőben mutatja a kamerát, és egy időkorlát után bezárja. Állítsa be őket a Beállítások › Irányítópult › Előugró ablakok alatt.</item>
+        <item>Új képernyővédő fali táblagépekhez: egy üresjárati időtúllépés után teljes képernyős óra opcionális időjárással, beltéri klímával, naptárral és parancsikonokkal (Beállítások › Képernyővédő).</item>
+        <item>Beállítások › Az eszköz képernyő be/ki, fényerő, Wi-Fi és helyi IP-érzékelőket adhat hozzá ehhez az eszközhöz a Home Assistant alkalmazásban.</item>
+        <item>Opcionálisan megoszthatja a táblagép kameráját tokennel védett adatfolyamként a helyi hálózaton, általános kamerához a Home Assistant webhelyen.</item>
+        <item>A biztonsági mentések most már tartalmazzák a képernyővédőt, a kamera előugró ablakát és az eszköz kamerabeállításait.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Javítva: a klíma felugró ablak termosztátcsúszkája az első módosítás után beragadt, amíg az ablakot újra meg nem nyitották.</item>
         <item>Új + és − gombok a termosztátcsúszka mellett. A lépésközt (0,1, 0,5 vagy 1 fok) a felugró ablak beállításaiban választhatja ki.</item>

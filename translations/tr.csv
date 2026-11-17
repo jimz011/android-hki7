@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (isteğe bağlı),app fills in %1$s 
 parcel_field_postal_code,,Postal code,Posta kodu,
 parcel_field_direction,,Direction,Yön,
 parcel_field_country,,Country,Ülke,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kamera açılır pencereleri: Bir hareket, kişi veya kapı zili sensörü tetiklendiğinde, HKI 7 kameranın canlı olduğunu gösterir ve bir zaman aşımından sonra kamerayı kapatır. Bunları Ayarlar › Kontrol Paneli › Açılır Pencereler altında ayarlayın.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Duvar tabletleri için yeni ekran koruyucu: Boşta kalma zaman aşımından sonra isteğe bağlı hava durumu, iç mekan iklimi, takvim ve kısayollar içeren tam ekran saat (Ayarlar › Ekran Koruyucu).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Ayarlar › Cihaz, Home Assistant içinde bu cihaza ekran açma/kapama, parlaklık, Wi-Fi ve yerel IP sensörleri ekleyebilir.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","İsteğe bağlı olarak bu tabletin kamerasını, Home Assistant içindeki bir Genel Kamera için yerel ağınızda belirteç korumalı bir akış olarak paylaşın.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Yedeklemeler artık ekran koruyucuyu, açılır kamera penceresini ve cihaz kamera ayarlarını içeriyor.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Düzeltildi: iklim açılır penceresindeki termostat kaydırıcısı ilk değişiklikten sonra pencere yeniden açılana kadar takılı kalıyordu.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Termostat kaydırıcısının yanında yeni + ve − düğmeleri. Adımlarını (0,1, 0,5 veya 1 derece) açılır pencere ayarlarından seçin.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Odalar güç tüketimlerini gösterebilir: oda ayarlarında Enerji altında güç sensörlerini seçin, başlık 21°C / 45% / 440W gösterir.",
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Yedekleniyor…,
 ui_backspace_88d130a,,Backspace,Geri tuşu,
 ui_backup_and_restore_a593246,,Backup and Restore,Yedekleme ve Geri Yükleme,
 ui_backup_dd96994,,Backup,Yedekleme,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Yedeklemeler yalnızca kontrol paneli ve görünüm yapılandırmasını içerir. Bağlantı ayrıntıları, uygulama izinleri, konum durumu ve bildirim geçmişi dahil değildir.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Yedeklemeler yalnızca kontrol paneli ve görünüm yapılandırmasını içerir. Bağlantı ayrıntıları, uygulama izinleri, konum durumu ve bildirim geçmişi dahil değildir.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Rozet çubuğu düzeni,
 ui_bars_ad5fb3b,,Bars,Barlar,
 ui_batt_679d0aa,,Batt,Vuruş,

@@ -27,6 +27,14 @@
         <item>Naprawiono odczyty temperatury i energii w języku czeskim, słowackim, greckim, norweskim, szwedzkim i duńskim, gdzie liczby były wyświetlane błędnie lub mogły powodować awarię ekranu.</item>
         <item>Coś źle sformułowanego w Twoim języku? Każdy język to teraz pojedynczy plik, który możesz poprawić w GitHubie, bez potrzeby stosowania kodu.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Wyskakujące okienka kamery: gdy zadziała czujnik ruchu, osoby lub dzwonka do drzwi, HKI 7 pokazuje, że kamera jest na żywo i zamyka ją po upływie limitu czasu. Skonfiguruj je w Ustawieniach › Pulpit nawigacyjny › Wyskakujące okienka.</item>
+        <item>Nowy wygaszacz ekranu dla tabletów ściennych: po upływie limitu czasu bezczynności zegar pełnoekranowy z opcjonalną pogodą, klimatem wewnętrznym, kalendarzem i skrótami (Ustawienia › Wygaszacz ekranu).</item>
+        <item>Ustawienia › Urządzenie może dodać do tego urządzenia włączanie/wyłączanie ekranu, jasność, Wi-Fi i lokalne czujniki IP w Home Assistant.</item>
+        <item>Opcjonalnie udostępnij kamerę tego tabletu jako strumień chroniony tokenem w sieci lokalnej dla kamery ogólnej w Home Assistant.</item>
+        <item>Kopie zapasowe obejmują teraz wygaszacz ekranu, wyskakujące okienko aparatu i ustawienia aparatu urządzenia.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Naprawiono: suwak termostatu w oknie klimatu zawieszał się po pierwszej zmianie, dopóki okno nie zostało otwarte ponownie.</item>
         <item>Nowe przyciski + i − obok suwaka termostatu. Wybierz ich krok (0,1, 0,5 lub 1 stopień) w ustawieniach okna.</item>

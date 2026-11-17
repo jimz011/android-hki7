@@ -27,6 +27,14 @@
         <item>Fiksēti temperatūras un enerģijas rādījumi čehu, slovāku, grieķu, norvēģu, zviedru un dāņu valodās, kur skaitļi tika rādīti nepareizi vai var izraisīt ekrāna avāriju.</item>
         <item>Vai jūsu valodā ir kaut kas slikti formulēts? Katra valoda tagad ir viens fails, kuru varat labot GitHub — kods nav nepieciešams.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kameras uznirstošie logi: kad tiek aktivizēts kustības, personas vai durvju zvana sensors, HKI 7 parāda šo kameru tiešraidē un aizver to pēc taimauta. Iestatiet tos sadaļā Iestatījumi › Informācijas panelis › Uznirstošie logi.</item>
+        <item>Jauns ekrānsaudzētājs sienas planšetdatoriem: pēc dīkstāves taimauta pilnekrāna pulkstenis ar papildu laikapstākļiem, iekštelpu klimatu, kalendāru un īsceļiem (Iestatījumi › Ekrānsaudzētājs).</item>
+        <item>Iestatījumi › Ierīce var pievienot šai ierīcei ekrāna ieslēgšanas/izslēgšanas, spilgtuma, Wi-Fi un vietējo IP sensorus Home Assistant.</item>
+        <item>Pēc izvēles kopīgojiet šīs planšetdatora kameru kā ar marķieri aizsargātu straumi savā lokālajā tīklā vispārējai kamerai Home Assistant.</item>
+        <item>Dublējumkopijās tagad ir iekļauts ekrānsaudzētājs, kameras uznirstošais logs un ierīces kameras iestatījumi.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Labots: klimata loga termostata slīdnis pēc pirmās izmaiņas iestrēga, līdz logs tika atvērts no jauna.</item>
         <item>Jaunas pogas + un − blakus termostata slīdnim. To soli (0,1, 0,5 vai 1 grāds) izvēlieties loga iestatījumos.</item>

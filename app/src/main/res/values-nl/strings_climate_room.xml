@@ -579,6 +579,14 @@
         <item>Vaste temperatuur- en energiemetingen in het Tsjechisch, Slowaaks, Grieks, Noors, Zweeds en Deens, waarbij de cijfers verkeerd werden weergegeven of het scherm konden crashen.</item>
         <item>Iets slecht verwoord in uw taal? Elke taal is nu één enkel bestand dat je op GitHub kunt corrigeren, zonder dat er code nodig is.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Camerapop-ups: wanneer een bewegings-, persoons- of deurbelsensor afgaat, laat HKI 7 die camera live zien en sluit deze na een time-out. Stel ze in onder Instellingen › Dashboard › Pop-ups.</item>
+        <item>Nieuwe screensaver voor wandtablets: na een time-out van inactiviteit een klok op volledig scherm met optioneel weer, binnenklimaat, kalender en snelkoppelingen (Instellingen › Screensaver).</item>
+        <item>Instellingen › Apparaat kan scherm aan/uit, helderheid, wifi en lokale IP-sensoren toevoegen aan dit apparaat in Home Assistant.</item>
+        <item>Deel optioneel de camera van deze tablet als een met tokens beveiligde stream op uw lokale netwerk, voor een algemene camera in Home Assistant.</item>
+        <item>Back-ups bevatten nu een screensaver, camerapop-up en camera-instellingen van het apparaat.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Opgelost: de thermostaatschuifregelaar in de klimaatpopup bleef na de eerste wijziging hangen tot de popup opnieuw werd geopend.</item>
         <item>Nieuwe + en − knoppen naast de thermostaatschuifregelaar. Kies hun stapgrootte (0,1, 0,5 of 1 graad) in de popup-instellingen.</item>

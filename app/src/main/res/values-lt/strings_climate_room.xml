@@ -27,6 +27,14 @@
         <item>Fiksuoti temperatūros ir energijos rodmenys čekų, slovakų, graikų, norvegų, švedų ir danų kalbomis, kur skaičiai rodomi neteisingai arba gali sugadinti ekraną.</item>
         <item>Kažkas blogai parašyta jūsų kalba? Dabar kiekviena kalba yra vienas failas, kurį galite taisyti naudodami „GitHub“, kodo nereikia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kameros iššokantys langai: kai suveikia judesio, asmens ar durų skambučio jutiklis, HKI 7 rodo tą kamerą tiesiogiai ir uždaro ją pasibaigus skirtajam laikui. Nustatykite juos skiltyje Nustatymai › Prietaisų skydelis › Iššokantys langai.</item>
+        <item>Nauja sieninių planšetinių kompiuterių ekrano užsklanda: pasibaigus neveikimo laikui viso ekrano laikrodis su pasirenkamu oru, patalpų klimatu, kalendoriumi ir nuorodomis (Nustatymai › Ekrano užsklanda).</item>
+        <item>Nustatymai › Įrenginys gali pridėti ekrano įjungimo / išjungimo, ryškumo, Wi-Fi ir vietinių IP jutiklių prie šio įrenginio Home Assistant.</item>
+        <item>Pasirinktinai bendrinkite šio planšetinio kompiuterio kamerą kaip prieigos raktu apsaugotą srautą vietiniame tinkle, skirtą bendrajam fotoaparatui Home Assistant.</item>
+        <item>Dabar atsarginės kopijos apima ekrano užsklandą, fotoaparato iššokantįjį langą ir įrenginio fotoaparato nustatymus.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Ištaisyta: klimato lango termostato slankiklis po pirmo pakeitimo užstrigdavo, kol langas nebuvo atidarytas iš naujo.</item>
         <item>Nauji mygtukai + ir − šalia termostato slankiklio. Jų žingsnį (0,1, 0,5 arba 1 laipsnis) pasirinkite lango nustatymuose.</item>

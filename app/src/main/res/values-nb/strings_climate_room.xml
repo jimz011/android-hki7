@@ -44,6 +44,14 @@
         <item>Faste temperatur- og energiavlesninger på tsjekkisk, slovakisk, gresk, norsk, svensk og dansk, der tallene viste feil eller kunne krasje skjermen.</item>
         <item>Noe dårlig formulert på språket ditt? Hvert språk er nå en enkelt fil du kan korrigere på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Popup-vinduer for kamera: når en bevegelses-, person- eller ringeklokkesensor utløses, viser HKI 7 at kameraet er i live og lukker det etter en tidsavbrudd. Sett dem opp under Innstillinger › Dashboard › Popups.</item>
+        <item>Ny skjermsparer for nettbrett: etter en inaktiv tidsavbrudd en fullskjermklokke med valgfritt vær, inneklima, kalender og snarveier (Innstillinger › Skjermsparer).</item>
+        <item>Innstillinger › Enheten kan legge til skjerm på/av, lysstyrke, Wi-Fi og lokale IP-sensorer til denne enheten i Home Assistant.</item>
+        <item>Du kan eventuelt dele dette nettbrettets kamera som en token-beskyttet strøm på ditt lokale nettverk, for et generisk kamera i Home Assistant.</item>
+        <item>Sikkerhetskopier inkluderer nå skjermsparer, popup-vinduer og enhetskamerainnstillinger.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Rettet: termostatglidebryteren i klimavinduet låste seg etter første endring til vinduet ble åpnet på nytt.</item>
         <item>Nye + og − knapper ved siden av termostatglidebryteren. Velg trinnet (0,1, 0,5 eller 1 grad) i innstillingene for vinduet.</item>

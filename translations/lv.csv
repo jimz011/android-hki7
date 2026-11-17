@@ -654,6 +654,11 @@ parcel_optional_field,,%1$s (optional),%1$s (neobligāti),app fills in %1$s — 
 parcel_field_postal_code,,Postal code,Pasta indekss,
 parcel_field_direction,,Direction,Virziens,
 parcel_field_country,,Country,Valsts,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kameras uznirstošie logi: kad tiek aktivizēts kustības, personas vai durvju zvana sensors, HKI 7 parāda šo kameru tiešraidē un aizver to pēc taimauta. Iestatiet tos sadaļā Iestatījumi › Informācijas panelis › Uznirstošie logi.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Jauns ekrānsaudzētājs sienas planšetdatoriem: pēc dīkstāves taimauta pilnekrāna pulkstenis ar papildu laikapstākļiem, iekštelpu klimatu, kalendāru un īsceļiem (Iestatījumi › Ekrānsaudzētājs).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Iestatījumi › Ierīce var pievienot šai ierīcei ekrāna ieslēgšanas/izslēgšanas, spilgtuma, Wi-Fi un vietējo IP sensorus Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",Pēc izvēles kopīgojiet šīs planšetdatora kameru kā ar marķieri aizsargātu straumi savā lokālajā tīklā vispārējai kamerai Home Assistant.,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Dublējumkopijās tagad ir iekļauts ekrānsaudzētājs, kameras uznirstošais logs un ierīces kameras iestatījumi.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Labots: klimata loga termostata slīdnis pēc pirmās izmaiņas iestrēga, līdz logs tika atvērts no jauna.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Jaunas pogas + un − blakus termostata slīdnim. To soli (0,1, 0,5 vai 1 grāds) izvēlieties loga iestatījumos.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Telpas var rādīt savu elektroenerģijas patēriņu: telpas iestatījumu sadaļā Enerģija izvēlieties jaudas sensorus, un galvenē būs redzams 21°C / 45% / 440W.",
@@ -1771,7 +1776,7 @@ ui_backing_up_f600558,,Backing up…,Notiek dublēšana…,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Dublēšana un atjaunošana,
 ui_backup_dd96994,,Backup,Dublējums,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Dublējumkopijās ir ietverta tikai informācijas paneļa un izskata konfigurācija. Savienojuma informācija, lietotņu atļaujas, atrašanās vietas stāvoklis un paziņojumu vēsture nav iekļauta.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Dublējumkopijās ir ietverta tikai informācijas paneļa un izskata konfigurācija. Savienojuma informācija, lietotņu atļaujas, atrašanās vietas stāvoklis un paziņojumu vēsture nav iekļauta.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Žetonu joslas izkārtojums,
 ui_bars_ad5fb3b,,Bars,Bāri,
 ui_batt_679d0aa,,Batt,Batt,

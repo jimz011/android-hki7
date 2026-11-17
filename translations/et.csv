@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (valikuline),app fills in %1$s — k
 parcel_field_postal_code,,Postal code,Postiindeks,
 parcel_field_direction,,Direction,Suund,
 parcel_field_country,,Country,Riik,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kaamera hüpikaknad: kui liikumis-, inimese- või uksekellaandur käivitub, näitab HKI 7 seda kaamerat reaalajas ja sulgeb selle pärast ajalõpu. Seadistage need jaotises Seaded › Armatuurlaud › Hüpikaknad.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Uus ekraanisäästja seinatahvelarvutitele: pärast jõudeoleku ajalõpu täisekraanil kuvatav kell koos valikulise ilma, sisekliima, kalendri ja otseteedega (Seaded › Ekraanisäästja).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Seaded › Seade saab rakenduses Home Assistant lisada sellele seadmele ekraani sisse/välja, heleduse, Wi-Fi ja kohaliku IP-andureid.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",Soovi korral jagage selle tahvelarvuti kaamerat loaga kaitstud voona kohalikus võrgus üldise kaamera jaoks asukohas Home Assistant.,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Varukoopiad sisaldavad nüüd ekraanisäästjat, kaamera hüpikakent ja seadme kaamera sätteid.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Parandatud: kliimaakna termostaadi liugur jäi pärast esimest muudatust kinni, kuni aken uuesti avati.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Uued nupud + ja − termostaadi liuguri kõrval. Vali nende samm (0,1, 0,5 või 1 kraad) akna seadetes.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Ruumid saavad näidata oma elektritarbimist: vali ruumi seadetes jaotises Energia võimsusandurid ja päis näitab 21°C / 45% / 440W.,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Varundamine…,
 ui_backspace_88d130a,,Backspace,Tagasilükkeklahv,
 ui_backup_and_restore_a593246,,Backup and Restore,Varundamine ja taastamine,
 ui_backup_dd96994,,Backup,Varundamine,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Varukoopiad sisaldavad ainult armatuurlaua ja välimuse konfiguratsiooni. Ühenduse üksikasju, rakenduse õigusi, asukoha olekut ja teavitusajalugu ei kaasata.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Varukoopiad sisaldavad ainult armatuurlaua ja välimuse konfiguratsiooni. Ühenduse üksikasju, rakenduse õigusi, asukoha olekut ja teavitusajalugu ei kaasata.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Märgiriba paigutus,
 ui_bars_ad5fb3b,,Bars,Baarid,
 ui_batt_679d0aa,,Batt,Batt,

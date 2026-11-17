@@ -5,9 +5,9 @@ file in sync with `app/src/main/java/com/jimz011apps/hki7/ui/components/WhatsNew
 
 Items marked with \* require the HKI 7 Cloud Component integration.
 
-## Unreleased
+## 1.3.2
 
-Wall-tablet extras: native camera popups, a screensaver, and optional device sensors plus a local MJPEG camera stream.
+Wall-tablet extras, contributed by pissten: native camera popups, a screensaver, and optional device sensors plus a local MJPEG camera stream.
 
 - Camera popups live in the app. When a motion, person or doorbell entity fires, HKI 7 shows that camera live and closes the window after a timeout. Rules are per Home Assistant instance under Settings › Dashboard › Popups — optional time window, helper that must be on, and a fullscreen fitted stream that closes on tap. No browser_mod automation is needed.
 - After an idle timeout, a full-screen screensaver can show the clock, weather, indoor climate, upcoming calendar events and up to four shortcuts (Settings › Screensaver). A camera popup always dismisses it first so the live video is visible. System bars are hidden so the clock covers the three-button bar. Photo still comes from Picsum, with a dark fill underneath and an Unsplash fallback if Picsum does not answer.

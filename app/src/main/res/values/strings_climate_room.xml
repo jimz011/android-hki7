@@ -366,6 +366,14 @@
     <string name="parcel_field_country">Country</string>
 
     <!-- Current release -->
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.</item>
+        <item>New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).</item>
+        <item>Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.</item>
+        <item>Optionally share this tablet\'s camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.</item>
+        <item>Backups now include screensaver, camera popup and device camera settings.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.</item>
         <item>New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.</item>

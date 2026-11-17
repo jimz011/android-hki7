@@ -27,6 +27,14 @@
         <item>Faste temperatur- og energiaflæsninger på tjekkisk, slovakisk, græsk, norsk, svensk og dansk, hvor tallene viste forkert eller kunne crashe skærmen.</item>
         <item>Noget dårligt formuleret på dit sprog? Hvert sprog er nu en enkelt fil, du kan rette på GitHub, ingen kode nødvendig.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kamera-popups: Når en bevægelses-, person- eller dørklokkesensor udløses, viser HKI 7 det kamera live og lukker det efter en timeout. Indstil dem under Indstillinger › Dashboard › Popups.</item>
+        <item>Ny pauseskærm til vægtablets: efter en inaktiv timeout et fuldskærmsur med valgfrit vejr, indeklima, kalender og genveje (Indstillinger › Pauseskærm).</item>
+        <item>Indstillinger › Enheden kan tilføje skærm til/fra, lysstyrke, Wi-Fi og lokale IP-sensorer til denne enhed i Home Assistant.</item>
+        <item>Del eventuelt denne tablets kamera som en token-beskyttet stream på dit lokale netværk for et generisk kamera i Home Assistant.</item>
+        <item>Sikkerhedskopier inkluderer nu pauseskærm, kamera popup og enheds kameraindstillinger.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Rettet: termostatskyderen i klimavinduet låste sig efter første ændring, indtil vinduet blev åbnet igen.</item>
         <item>Nye knapper + og − ved siden af termostatskyderen. Vælg deres trin (0,1, 0,5 eller 1 grad) i vinduets indstillinger.</item>

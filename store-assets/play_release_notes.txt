@@ -1,10 +1,6 @@
 NEW
-• + and − buttons beside the thermostat slider, with a choosable step
-• Room headers can show power usage next to temperature and humidity
-• Buttons can show power usage, with PowerCalc sensors found automatically
-• Parcels: remove parcels and pick the carrier when adding one
-• All 94 parcel carriers supported, including DHL, UPS, FedEx and USPS
-
-FIXED
-• Thermostat slider freezing after the first change
-• Global DHL parcels being treated as DHL NL
+• Camera popups: motion, person or doorbell sensors open that camera live
+• Screensaver for wall tablets with clock, weather, climate and calendar
+• Extra device sensors: screen on/off, brightness, Wi-Fi and local IP
+• Optional local camera stream from this tablet for Home Assistant
+• Backups include screensaver, camera popup and device camera settings

@@ -578,6 +578,14 @@
         <item>Çekçe, Slovakça, Yunanca, Norveççe, İsveççe ve Danca dillerinde sayıların yanlış gösterildiği veya ekranın çökmesine neden olabileceği sabit sıcaklık ve enerji okumaları.</item>
         <item>Dilinizde kötü ifade edilen bir şey mi var? Artık her dil GitHub\'da düzeltebileceğiniz tek bir dosyadır; kod gerekmez.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kamera açılır pencereleri: Bir hareket, kişi veya kapı zili sensörü tetiklendiğinde, HKI 7 kameranın canlı olduğunu gösterir ve bir zaman aşımından sonra kamerayı kapatır. Bunları Ayarlar › Kontrol Paneli › Açılır Pencereler altında ayarlayın.</item>
+        <item>Duvar tabletleri için yeni ekran koruyucu: Boşta kalma zaman aşımından sonra isteğe bağlı hava durumu, iç mekan iklimi, takvim ve kısayollar içeren tam ekran saat (Ayarlar › Ekran Koruyucu).</item>
+        <item>Ayarlar › Cihaz, Home Assistant içinde bu cihaza ekran açma/kapama, parlaklık, Wi-Fi ve yerel IP sensörleri ekleyebilir.</item>
+        <item>İsteğe bağlı olarak bu tabletin kamerasını, Home Assistant içindeki bir Genel Kamera için yerel ağınızda belirteç korumalı bir akış olarak paylaşın.</item>
+        <item>Yedeklemeler artık ekran koruyucuyu, açılır kamera penceresini ve cihaz kamera ayarlarını içeriyor.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Düzeltildi: iklim açılır penceresindeki termostat kaydırıcısı ilk değişiklikten sonra pencere yeniden açılana kadar takılı kalıyordu.</item>
         <item>Termostat kaydırıcısının yanında yeni + ve − düğmeleri. Adımlarını (0,1, 0,5 veya 1 derece) açılır pencere ayarlarından seçin.</item>

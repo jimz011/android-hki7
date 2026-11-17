@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),,needs translation; app fills in %1$s —
 parcel_field_postal_code,,Postal code,,needs translation
 parcel_field_direction,,Direction,,needs translation
 parcel_field_country,,Country,,needs translation
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.",,needs translation; don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).",,needs translation
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",,needs translation; don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.",,needs translation
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,,needs translation
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",,needs translation
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,,needs translation
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,,needs translation
 ui_backspace_88d130a,,Backspace,,needs translation
 ui_backup_and_restore_a593246,,Backup and Restore,,needs translation
 ui_backup_dd96994,,Backup,,needs translation
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.",,needs translation
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.",,needs translation
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,,needs translation
 ui_bars_ad5fb3b,,Bars,,needs translation
 ui_batt_679d0aa,,Batt,,needs translation

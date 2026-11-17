@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (nem kötelező),app fills in %1$s �
 parcel_field_postal_code,,Postal code,Irányítószám,
 parcel_field_direction,,Direction,Irány,
 parcel_field_country,,Country,Ország,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kamera előugró ablakok: ha egy mozgás-, személy- vagy ajtócsengő-érzékelő beindul, a HKI 7 élőben mutatja a kamerát, és egy időkorlát után bezárja. Állítsa be őket a Beállítások › Irányítópult › Előugró ablakok alatt.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Új képernyővédő fali táblagépekhez: egy üresjárati időtúllépés után teljes képernyős óra opcionális időjárással, beltéri klímával, naptárral és parancsikonokkal (Beállítások › Képernyővédő).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Beállítások › Az eszköz képernyő be/ki, fényerő, Wi-Fi és helyi IP-érzékelőket adhat hozzá ehhez az eszközhöz a Home Assistant alkalmazásban.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Opcionálisan megoszthatja a táblagép kameráját tokennel védett adatfolyamként a helyi hálózaton, általános kamerához a Home Assistant webhelyen.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","A biztonsági mentések most már tartalmazzák a képernyővédőt, a kamera előugró ablakát és az eszköz kamerabeállításait.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Javítva: a klíma felugró ablak termosztátcsúszkája az első módosítás után beragadt, amíg az ablakot újra meg nem nyitották.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Új + és − gombok a termosztátcsúszka mellett. A lépésközt (0,1, 0,5 vagy 1 fok) a felugró ablak beállításaiban választhatja ki.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"A szobák megjeleníthetik az áramfogyasztásukat: válasszon teljesítményérzékelőket a szoba beállításaiban az Energia alatt, és a fejléc 21°C / 45% / 440W formában mutatja.",
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Biztonsági mentés…,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Biztonsági mentés és visszaállítás,
 ui_backup_dd96994,,Backup,Biztonsági mentés,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","A biztonsági másolatok csak az irányítópultot és a megjelenés konfigurációját tartalmazzák. A kapcsolat részleteit, az alkalmazásengedélyeket, a hely állapotát és az értesítési előzményeket nem tartalmazza.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","A biztonsági másolatok csak az irányítópultot és a megjelenés konfigurációját tartalmazzák. A kapcsolat részleteit, az alkalmazásengedélyeket, a hely állapotát és az értesítési előzményeket nem tartalmazza.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Jelvénysáv elrendezése,
 ui_bars_ad5fb3b,,Bars,Bárok,
 ui_batt_679d0aa,,Batt,Batt,

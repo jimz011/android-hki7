@@ -586,6 +586,14 @@
         <item>Correction des relevés de température et d\'énergie en tchèque, slovaque, grec, norvégien, suédois et danois, où les chiffres s\'affichaient mal ou pouvaient faire planter l\'écran.</item>
         <item>Quelque chose de mal formulé dans votre langue ? Chaque langue est désormais un fichier unique que vous pouvez corriger sur GitHub, aucun code n\'est nécessaire.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Fenêtres contextuelles de la caméra : lorsqu\'un capteur de mouvement, de personne ou de sonnette se déclenche, HKI 7 affiche cette caméra en direct et la ferme après un délai d\'attente. Configurez-les sous Paramètres › Tableau de bord › Popups.</item>
+        <item>Nouvel économiseur d\'écran pour tablettes murales : après un délai d\'inactivité, une horloge plein écran avec météo, climat intérieur, calendrier et raccourcis en option (Paramètres &gt; Économiseur d\'écran).</item>
+        <item>Paramètres › L\'appareil peut ajouter des capteurs d\'activation/désactivation de l\'écran, de luminosité, de Wi-Fi et d\'IP local à cet appareil dans Home Assistant.</item>
+        <item>Partagez éventuellement la caméra de cette tablette en tant que flux protégé par jeton sur votre réseau local, pour une caméra générique dans Home Assistant.</item>
+        <item>Les sauvegardes incluent désormais l\'économiseur d\'écran, la fenêtre contextuelle de l\'appareil photo et les paramètres de l\'appareil photo de l\'appareil.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Correction : le curseur du thermostat dans la fenêtre climat se figeait après la première modification jusqu’à sa réouverture.</item>
         <item>Nouveaux boutons + et − à côté du curseur du thermostat. Choisissez leur pas (0,1, 0,5 ou 1 degré) dans les réglages de la fenêtre.</item>

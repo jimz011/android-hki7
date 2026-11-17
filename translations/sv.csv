@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (valfritt),app fills in %1$s — kee
 parcel_field_postal_code,,Postal code,Postnummer,
 parcel_field_direction,,Direction,Riktning,
 parcel_field_country,,Country,Land,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kamerapopups: när en rörelse-, person- eller dörrklocksensor avfyras visar HKI 7 den kameran live och stänger den efter en timeout. Ställ in dem under Inställningar › Dashboard › Popups.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Ny skärmsläckare för surfplattor: efter en inaktiv timeout en helskärmsklocka med valfritt väder, inomhusklimat, kalender och genvägar (Inställningar › Skärmsläckare).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Inställningar › Enheten kan lägga till skärm på/av, ljusstyrka, Wi-Fi och lokala IP-sensorer till den här enheten i Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Dela eventuellt den här surfplattans kamera som en token-skyddad ström på ditt lokala nätverk, för en generisk kamera i Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Säkerhetskopieringar inkluderar nu skärmsläckare, kamera popup och enhetskamerainställningar.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Åtgärdat: termostatreglaget i klimatfönstret fastnade efter första ändringen tills fönstret öppnades igen.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nya knappar + och − bredvid termostatreglaget. Välj deras steg (0,1, 0,5 eller 1 grad) i fönstrets inställningar.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Rum kan visa sin strömförbrukning: välj effektsensorer under Energi i rummets inställningar så visar sidhuvudet 21°C / 45% / 440W.,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Säkerhetskopierar...,
 ui_backspace_88d130a,,Backspace,Backsteg,
 ui_backup_and_restore_a593246,,Backup and Restore,Säkerhetskopiera och återställa,
 ui_backup_dd96994,,Backup,Säkerhetskopiering,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Säkerhetskopieringar innehåller endast instrumentpanel och utseendekonfiguration. Anslutningsinformation, appbehörigheter, platsstatus och aviseringshistorik ingår inte.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Säkerhetskopieringar innehåller endast instrumentpanel och utseendekonfiguration. Anslutningsinformation, appbehörigheter, platsstatus och aviseringshistorik ingår inte.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Badge bar layout,
 ui_bars_ad5fb3b,,Bars,Barer,
 ui_batt_679d0aa,,Batt,Batt,

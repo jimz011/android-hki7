@@ -3966,6 +3966,14 @@
     <string name="settings_local_network_allowed">允許</string>
     <string name="settings_local_network_not_allowed">不允許 — 無法透過您的 Wi-Fi 直接存取 Home Assistant</string>
     <string name="update_see_changes">看看發生了什麼變化</string>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>相機彈出視窗：當運動、人或門鈴感應器觸發時，HKI 7 顯示攝影機處於活動狀態並在逾時後將其關閉。在設定 › 儀表板 › 彈出視窗下進行設定。</item>
+        <item>適用於壁式平板電腦的新螢幕保護程式：閒置逾時後，全螢幕時鐘顯示可選天氣、室內氣候、日曆和快捷方式（設定 &gt; 螢幕保護程式）。</item>
+        <item>設定 › 裝置可在 Home Assistant 中新增螢幕開/關、亮度、Wi-Fi 和本機 IP 感應器。</item>
+        <item>（可選）將此平板電腦的攝影機共用為本地網路上受令牌保護的串流，以取得 Home Assistant 中的通用攝影機。</item>
+        <item>備份現在包括螢幕保護程式、相機彈出視窗和裝置相機設定。</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>已修正：氣候彈出視窗中的恆溫器滑桿在第一次變更後卡住，直到重新開啟視窗。</item>
         <item>恆溫器滑桿旁新增 + 和 − 按鈕。可在彈出視窗設定中選擇級距（0.1、0.5 或 1 度）。</item>

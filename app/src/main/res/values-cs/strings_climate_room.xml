@@ -27,6 +27,14 @@
         <item>Opraveny údaje o teplotě a energii v češtině, slovenštině, řečtině, norštině, švédštině a dánštině, kde se čísla zobrazovala špatně nebo mohla shazovat obrazovku.</item>
         <item>Něco špatně formulovaného ve vašem jazyce? Každý jazyk je nyní jeden soubor, který můžete opravit na GitHubu, není potřeba žádný kód.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Vyskakovací okna kamery: když se spustí senzor pohybu, osoby nebo zvonku, HKI 7 ukáže kameru živě a po uplynutí časového limitu ji zavře. Nastavte je v části Nastavení › Ovládací panel › Vyskakovací okna.</item>
+        <item>Nový spořič obrazovky pro nástěnné tablety: po nečinnosti hodiny přes celou obrazovku s volitelným počasím, vnitřním klimatem, kalendářem a zkratkami (Nastavení › Spořič obrazovky).</item>
+        <item>Nastavení › Zařízení může k tomuto zařízení v Home Assistant přidat zapínání/vypínání obrazovky, jas, Wi-Fi a místní IP senzory.</item>
+        <item>Volitelně sdílejte kameru tohoto tabletu jako stream chráněný tokeny ve vaší místní síti pro generickou kameru v Home Assistant.</item>
+        <item>Zálohy nyní zahrnují spořič obrazovky, vyskakovací okno fotoaparátu a nastavení fotoaparátu zařízení.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Opraveno: posuvník termostatu v okně klimatu po první změně zamrzl, dokud se okno znovu neotevřelo.</item>
         <item>Nová tlačítka + a − vedle posuvníku termostatu. Jejich krok (0,1, 0,5 nebo 1 stupeň) zvolíte v nastavení okna.</item>

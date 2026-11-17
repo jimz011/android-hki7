@@ -662,6 +662,11 @@ parcel_optional_field,,%1$s (optional),%1$s (אופציונלי),app fills in %1
 parcel_field_postal_code,,Postal code,מיקוד,
 parcel_field_direction,,Direction,כיוון,
 parcel_field_country,,Country,מדינה,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","חלונות קופצים של מצלמה: כאשר חיישן תנועה, אדם או פעמון פועל, HKI 7 מציג את המצלמה הזו בזמן אמת וסוגר אותה לאחר פסק זמן. הגדר אותם תחת הגדרות › לוח מחוונים › חלונות קופצים.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","שומר מסך חדש לטאבלטים קיר: לאחר פסק זמן לא פעיל שעון מסך מלא עם מזג אוויר אופציונלי, אקלים פנימי, לוח שנה וקיצורי דרך (הגדרות › שומר מסך).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","הגדרות › המכשיר יכול להוסיף מסך הפעלה/כיבוי, בהירות, Wi-Fi וחיישני IP מקומיים למכשיר זה ב-Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","אופציונלי שתף את מצלמת הטאבלט הזה כזרם מוגן אסימונים ברשת המקומית שלך, עבור מצלמה כללית ב-Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","גיבויים כוללים כעת שומר מסך, מצלמה קופצת והגדרות מצלמת המכשיר.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,תוקן: מחוון התרמוסטט בחלון האקלים נתקע אחרי השינוי הראשון עד שהחלון נפתח מחדש.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","לחצני + ו־− חדשים ליד מחוון התרמוסטט. בחרו את גודל הצעד (0.1, 0.5 או מעלה אחת) בהגדרות החלון.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"חדרים יכולים להציג את צריכת החשמל שלהם: בחרו חיישני הספק תחת אנרגיה בהגדרות החדר, והכותרת תציג 21°C / 45% / 440W.",
@@ -1791,7 +1796,7 @@ ui_backing_up_f600558,,Backing up…,מגבה...,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,גיבוי ושחזור,
 ui_backup_dd96994,,Backup,גיבוי,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","גיבויים מכילים את לוח המחוונים ואת תצורת המראה בלבד. פרטי חיבור, הרשאות אפליקציה, מצב מיקום והיסטוריית הודעות אינם כלולים.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","גיבויים מכילים את לוח המחוונים ואת תצורת המראה בלבד. פרטי חיבור, הרשאות אפליקציה, מצב מיקום והיסטוריית הודעות אינם כלולים.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,פריסת סרגל התגים,
 ui_bars_ad5fb3b,,Bars,סורגים,
 ui_batt_679d0aa,,Batt,באט,

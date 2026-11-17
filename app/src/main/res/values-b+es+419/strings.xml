@@ -3966,6 +3966,14 @@
     <string name="settings_local_network_allowed">Permitido</string>
     <string name="settings_local_network_not_allowed">No permitido: no se puede acceder a Home Assistant directamente desde tu Wi-Fi</string>
     <string name="update_see_changes">Mira lo que cambió</string>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Ventanas emergentes de cámara: cuando se activa un sensor de movimiento, persona o timbre, HKI 7 muestra esa cámara en vivo y la cierra después de un tiempo de espera. Configúrelos en Configuración &gt; Panel de control &gt; Ventanas emergentes.</item>
+        <item>Nuevo protector de pantalla para tabletas de pared: después de un tiempo de inactividad, un reloj de pantalla completa con tiempo, clima interior, calendario y accesos directos opcionales (Configuración › Salvapantallas).</item>
+        <item>Configuración › El dispositivo puede agregar encendido/apagado de pantalla, brillo, Wi-Fi y sensores de IP locales a este dispositivo en Home Assistant.</item>
+        <item>Opcionalmente, comparta la cámara de esta tableta como una transmisión protegida por token en su red local, para una cámara genérica en Home Assistant.</item>
+        <item>Las copias de seguridad ahora incluyen salvapantallas, ventana emergente de cámara y configuración de la cámara del dispositivo.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Corregido: el control deslizante del termostato en la ventana de clima se quedaba bloqueado tras el primer cambio hasta volver a abrirla.</item>
         <item>Nuevos botones + y − junto al control deslizante del termostato. Elige su paso (0,1, 0,5 o 1 grado) en los ajustes de la ventana.</item>

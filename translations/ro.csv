@@ -654,6 +654,11 @@ parcel_optional_field,,%1$s (optional),%1$s (opțional),app fills in %1$s — ke
 parcel_field_postal_code,,Postal code,Cod poștal,
 parcel_field_direction,,Direction,Direcție,
 parcel_field_country,,Country,Țară,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Ferestre de tip pop-up pentru cameră: când se declanșează un senzor de mișcare, de persoană sau de sonerie, HKI 7 arată acea cameră în direct și o închide după un timeout. Configurați-le în Setări › Tabloul de bord › Ferestre pop-up.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Nou screensaver pentru tablete de perete: după o perioadă de inactivitate, un ceas pe ecran complet cu vreme opțională, climă interioară, calendar și comenzi rapide (Setări › Screensaver).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Setări › Dispozitivul poate adăuga ecran pornit/oprit, luminozitate, Wi-Fi și senzori IP locali la acest dispozitiv în Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Opțional, partajați camera acestei tablete ca flux protejat prin simbol în rețeaua locală, pentru o cameră generică în Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Backup-urile includ acum screensaverul, fereastra pop-up și setările camerei dispozitivului.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Remediat: glisorul termostatului din fereastra de climă se bloca după prima modificare până la redeschiderea ferestrei.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Butoane noi + și − lângă glisorul termostatului. Alege pasul lor (0,1, 0,5 sau 1 grad) în setările ferestrei.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Camerele își pot afișa consumul de energie: alege senzori de putere la Energie în setările camerei, iar antetul va afișa 21°C / 45% / 440W.",
@@ -1771,7 +1776,7 @@ ui_backing_up_f600558,,Backing up…,Se face backup...,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Backup și restaurare,
 ui_backup_dd96994,,Backup,Backup,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Backup-urile conțin numai configurația tabloului de bord și a aspectului. Detaliile conexiunii, permisiunile aplicației, starea locației și istoricul notificărilor nu sunt incluse.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Backup-urile conțin numai configurația tabloului de bord și a aspectului. Detaliile conexiunii, permisiunile aplicației, starea locației și istoricul notificărilor nu sunt incluse.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Dispunerea barei de insignă,
 ui_bars_ad5fb3b,,Bars,Baruri,
 ui_batt_679d0aa,,Batt,Batt,

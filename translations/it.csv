@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (facoltativo),app fills in %1$s — 
 parcel_field_postal_code,,Postal code,CAP,
 parcel_field_direction,,Direction,Direzione,
 parcel_field_country,,Country,Paese,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Popup della telecamera: quando un sensore di movimento, persona o campanello si attiva, HKI 7 mostra la telecamera in diretta e la chiude dopo un timeout. Configurali in Impostazioni › Dashboard › Popup.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Nuovo salvaschermo per tablet a muro: dopo un timeout di inattività un orologio a schermo intero con meteo opzionale, clima interno, calendario e scorciatoie (Impostazioni › Salvaschermo).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Impostazioni › Il dispositivo può aggiungere sensori di accensione/spegnimento, luminosità, Wi-Fi e IP locale al dispositivo in Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Facoltativamente, condividi la fotocamera di questo tablet come flusso protetto da token sulla tua rete locale, per una fotocamera generica in Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","I backup ora includono salvaschermo, popup della fotocamera e impostazioni della fotocamera del dispositivo.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,Risolto: il cursore del termostato nel popup clima si bloccava dopo la prima modifica finché il popup non veniva riaperto.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nuovi pulsanti + e − accanto al cursore del termostato. Scegli il loro passo (0,1, 0,5 o 1 grado) nelle impostazioni del popup.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,Le stanze possono mostrare il loro consumo elettrico: scegli i sensori di potenza in Energia nelle impostazioni della stanza e l’intestazione mostrerà 21°C / 45% / 440W.,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,Backup…,
 ui_backspace_88d130a,,Backspace,Indietro,
 ui_backup_and_restore_a593246,,Backup and Restore,Backup e ripristino,
 ui_backup_dd96994,,Backup,Backup,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","I backup contengono solo la dashboard e la configurazione dell'aspetto. I dettagli di connessione, le autorizzazioni delle app, lo stato della posizione e la cronologia delle notifiche non sono inclusi.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","I backup contengono solo la dashboard e la configurazione dell'aspetto. I dettagli di connessione, le autorizzazioni delle app, lo stato della posizione e la cronologia delle notifiche non sono inclusi.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Disposizione della barra dei badge,
 ui_bars_ad5fb3b,,Bars,Barre,
 ui_batt_679d0aa,,Batt,Batt,

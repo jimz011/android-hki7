@@ -579,6 +579,14 @@
         <item>Risolti i problemi relativi alle letture di temperatura ed energia in ceco, slovacco, greco, norvegese, svedese e danese, in cui i numeri venivano visualizzati in modo errato o potevano mandare in crash lo schermo.</item>
         <item>Qualcosa espresso male nella tua lingua? Ogni lingua ora è un singolo file che puoi correggere su GitHub, senza bisogno di codice.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Popup della telecamera: quando un sensore di movimento, persona o campanello si attiva, HKI 7 mostra la telecamera in diretta e la chiude dopo un timeout. Configurali in Impostazioni › Dashboard › Popup.</item>
+        <item>Nuovo salvaschermo per tablet a muro: dopo un timeout di inattività un orologio a schermo intero con meteo opzionale, clima interno, calendario e scorciatoie (Impostazioni › Salvaschermo).</item>
+        <item>Impostazioni › Il dispositivo può aggiungere sensori di accensione/spegnimento, luminosità, Wi-Fi e IP locale al dispositivo in Home Assistant.</item>
+        <item>Facoltativamente, condividi la fotocamera di questo tablet come flusso protetto da token sulla tua rete locale, per una fotocamera generica in Home Assistant.</item>
+        <item>I backup ora includono salvaschermo, popup della fotocamera e impostazioni della fotocamera del dispositivo.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Risolto: il cursore del termostato nel popup clima si bloccava dopo la prima modifica finché il popup non veniva riaperto.</item>
         <item>Nuovi pulsanti + e − accanto al cursore del termostato. Scegli il loro passo (0,1, 0,5 o 1 grado) nelle impostazioni del popup.</item>

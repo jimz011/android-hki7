@@ -579,6 +579,14 @@
         <item>Temperatur- und Energiemesswerte auf Tschechisch, Slowakisch, Griechisch, Norwegisch, Schwedisch und Dänisch wurden behoben, bei denen Zahlen falsch angezeigt wurden oder der Bildschirm abstürzen konnte.</item>
         <item>Etwas in Ihrer Sprache schlecht formuliert? Jede Sprache ist jetzt eine einzelne Datei, die Sie auf GitHub korrigieren können, ohne dass Code erforderlich ist.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kamera-Popups: Wenn ein Bewegungs-, Personen- oder Türklingelsensor ausgelöst wird, zeigt HKI 7 diese Kamera live an und schließt sie nach einer Zeitüberschreitung. Richten Sie sie unter Einstellungen › Dashboard › Popups ein.</item>
+        <item>Neuer Bildschirmschoner für Wand-Tablets: nach einer Leerlaufzeit eine Vollbilduhr mit optionalem Wetter, Raumklima, Kalender und Verknüpfungen (Einstellungen › Bildschirmschoner).</item>
+        <item>Einstellungen › Das Gerät kann diesem Gerät in Home Assistant Bildschirm ein/aus, Helligkeit, WLAN und lokale IP-Sensoren hinzufügen.</item>
+        <item>Geben Sie optional die Kamera dieses Tablets als tokengeschützten Stream in Ihrem lokalen Netzwerk für eine generische Kamera in Home Assistant frei.</item>
+        <item>Backups umfassen jetzt Bildschirmschoner, Kamera-Popup und Gerätekameraeinstellungen.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Behoben: Der Thermostat-Schieberegler im Klima-Popup reagierte nach der ersten Änderung nicht mehr, bis das Popup neu geöffnet wurde.</item>
         <item>Neue Tasten + und − neben dem Thermostat-Schieberegler. Ihre Schrittweite (0,1, 0,5 oder 1 Grad) wählen Sie in den Popup-Einstellungen.</item>

@@ -662,6 +662,11 @@ parcel_optional_field,,%1$s (optional),%1$s (neprivaloma),app fills in %1$s — 
 parcel_field_postal_code,,Postal code,Pašto kodas,
 parcel_field_direction,,Direction,Kryptis,
 parcel_field_country,,Country,Šalis,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Kameros iššokantys langai: kai suveikia judesio, asmens ar durų skambučio jutiklis, HKI 7 rodo tą kamerą tiesiogiai ir uždaro ją pasibaigus skirtajam laikui. Nustatykite juos skiltyje Nustatymai › Prietaisų skydelis › Iššokantys langai.",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Nauja sieninių planšetinių kompiuterių ekrano užsklanda: pasibaigus neveikimo laikui viso ekrano laikrodis su pasirenkamu oru, patalpų klimatu, kalendoriumi ir nuorodomis (Nustatymai › Ekrano užsklanda).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Nustatymai › Įrenginys gali pridėti ekrano įjungimo / išjungimo, ryškumo, Wi-Fi ir vietinių IP jutiklių prie šio įrenginio Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","Pasirinktinai bendrinkite šio planšetinio kompiuterio kamerą kaip prieigos raktu apsaugotą srautą vietiniame tinkle, skirtą bendrajam fotoaparatui Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Dabar atsarginės kopijos apima ekrano užsklandą, fotoaparato iššokantįjį langą ir įrenginio fotoaparato nustatymus.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Ištaisyta: klimato lango termostato slankiklis po pirmo pakeitimo užstrigdavo, kol langas nebuvo atidarytas iš naujo.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Nauji mygtukai + ir − šalia termostato slankiklio. Jų žingsnį (0,1, 0,5 arba 1 laipsnis) pasirinkite lango nustatymuose.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Kambariai gali rodyti elektros suvartojimą: kambario nustatymų skiltyje Energija pasirinkite galios jutiklius, ir antraštėje bus rodoma 21°C / 45% / 440W.",
@@ -1791,7 +1796,7 @@ ui_backing_up_f600558,,Backing up…,Kuriama atsarginė kopija…,
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Atsarginė kopija ir atkūrimas,
 ui_backup_dd96994,,Backup,Atsarginė kopija,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Atsarginėse kopijose yra tik prietaisų skydelio ir išvaizdos konfigūracija. Išsami ryšio informacija, programos leidimai, vietos būsena ir pranešimų istorija neįtraukiami.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Atsarginėse kopijose yra tik prietaisų skydelio ir išvaizdos konfigūracija. Išsami ryšio informacija, programos leidimai, vietos būsena ir pranešimų istorija neįtraukiami.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Ženklelių juostos išdėstymas,
 ui_bars_ad5fb3b,,Bars,Barai,
 ui_batt_679d0aa,,Batt,Batt,

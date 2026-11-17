@@ -44,6 +44,14 @@
         <item>Kiinteät lämpötila- ja energialukemat tšekin, slovakin, kreikan, norjan, ruotsin ja tanskan kielellä, joissa numerot näyttivät väärin tai voivat kaataa näytön.</item>
         <item>Onko kielelläsi jotain huonosti sanottu? Jokainen kieli on nyt yksi tiedosto, jonka voit korjata GitHubissa ilman koodia.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kameran ponnahdusikkunat: kun liike-, henkilö- tai ovikellotunnistin laukeaa, HKI 7 näyttää kameran livenä ja sulkee sen aikakatkaisun jälkeen. Määritä ne kohdassa Asetukset › Kojelauta › Ponnahdusikkunat.</item>
+        <item>Uusi näytönsäästäjä seinätabletille: tyhjäkäynnin jälkeen koko näytön kello valinnaisella säällä, sisäilmastolla, kalenterilla ja pikakuvakkeilla (Asetukset › Näytönsäästäjä).</item>
+        <item>Asetukset › Laite voi lisätä näytön päälle/pois, kirkkauden, Wi-Fi- ja paikalliset IP-anturit tähän laitteeseen kohteessa Home Assistant.</item>
+        <item>Vaihtoehtoisesti voit jakaa tämän tabletin kameran tunnisteilla suojattuna suoratoistona paikallisessa verkossa yleiskameraa varten verkkotunnuksessa Home Assistant.</item>
+        <item>Varmuuskopiot sisältävät nyt näytönsäästäjän, kameran ponnahdusikkunan ja laitteen kameran asetukset.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Korjattu: ilmastoikkunan termostaatin liukusäädin jumittui ensimmäisen muutoksen jälkeen, kunnes ikkuna avattiin uudelleen.</item>
         <item>Uudet + ja − painikkeet termostaatin liukusäätimen vieressä. Valitse niiden askel (0,1, 0,5 tai 1 aste) ikkunan asetuksista.</item>

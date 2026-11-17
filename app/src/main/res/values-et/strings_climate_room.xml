@@ -27,6 +27,14 @@
         <item>Fikseeritud temperatuuri- ja energianäidud tšehhi, slovaki, kreeka, norra, rootsi ja taani keeles, kus numbrid näitasid valesti või võivad ekraan kokku kukkuda.</item>
         <item>Kas teie keeles on midagi halvasti sõnastatud? Iga keel on nüüd üks fail, mida saate GitHubis parandada, koodi pole vaja.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Kaamera hüpikaknad: kui liikumis-, inimese- või uksekellaandur käivitub, näitab HKI 7 seda kaamerat reaalajas ja sulgeb selle pärast ajalõpu. Seadistage need jaotises Seaded › Armatuurlaud › Hüpikaknad.</item>
+        <item>Uus ekraanisäästja seinatahvelarvutitele: pärast jõudeoleku ajalõpu täisekraanil kuvatav kell koos valikulise ilma, sisekliima, kalendri ja otseteedega (Seaded › Ekraanisäästja).</item>
+        <item>Seaded › Seade saab rakenduses Home Assistant lisada sellele seadmele ekraani sisse/välja, heleduse, Wi-Fi ja kohaliku IP-andureid.</item>
+        <item>Soovi korral jagage selle tahvelarvuti kaamerat loaga kaitstud voona kohalikus võrgus üldise kaamera jaoks asukohas Home Assistant.</item>
+        <item>Varukoopiad sisaldavad nüüd ekraanisäästjat, kaamera hüpikakent ja seadme kaamera sätteid.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Parandatud: kliimaakna termostaadi liugur jäi pärast esimest muudatust kinni, kuni aken uuesti avati.</item>
         <item>Uued nupud + ja − termostaadi liuguri kõrval. Vali nende samm (0,1, 0,5 või 1 kraad) akna seadetes.</item>

@@ -678,6 +678,11 @@ parcel_optional_field,,%1$s (optional),%1$s (اختياري),app fills in %1$s �
 parcel_field_postal_code,,Postal code,الرمز البريدي,
 parcel_field_direction,,Direction,الاتجاه,
 parcel_field_country,,Country,الدولة,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.",النوافذ المنبثقة للكاميرا: عند تشغيل مستشعر حركة أو شخص أو جرس الباب، يُظهر HKI 7 تلك الكاميرا مباشرة ويغلقها بعد انتهاء المهلة. قم بإعدادها ضمن الإعدادات > لوحة المعلومات > النوافذ المنبثقة.,don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).",شاشة توقف جديدة لأجهزة الكمبيوتر اللوحية الجدارية: بعد انتهاء مهلة الخمول، تتوفر ساعة بملء الشاشة مع الطقس الاختياري والمناخ الداخلي والتقويم والاختصارات (الإعدادات › شاشة التوقف).,
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.",الإعدادات › يمكن للجهاز إضافة تشغيل/إيقاف الشاشة والسطوع وWi-Fi وأجهزة استشعار IP المحلية إلى هذا الجهاز في Home Assistant.,don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",يمكنك اختياريًا مشاركة كاميرا هذا الجهاز اللوحي كبث محمي برمز مميز على شبكتك المحلية، لكاميرا عامة في Home Assistant.,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.",تتضمن النسخ الاحتياطية الآن شاشة التوقف والإطار المنبثق للكاميرا وإعدادات كاميرا الجهاز.,
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,تم الإصلاح: كان شريط منظم الحرارة في نافذة المناخ يتجمد بعد أول تغيير حتى يُعاد فتح النافذة.,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.",زرّا + و − جديدان بجانب شريط منظم الحرارة. اختر مقدار الخطوة (0.1 أو 0.5 أو 1 درجة) من إعدادات النافذة.,
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,يمكن للغرف عرض استهلاكها للكهرباء: اختر حساسات القدرة ضمن الطاقة في إعدادات الغرفة ليعرض الرأس 21°C / 45% / 440W.,
@@ -1831,7 +1836,7 @@ ui_backing_up_f600558,,Backing up…,جارٍ الاحتفاظ بنسخة احت
 ui_backspace_88d130a,,Backspace,مسافة للخلف,
 ui_backup_and_restore_a593246,,Backup and Restore,النسخ الاحتياطي والاستعادة,
 ui_backup_dd96994,,Backup,النسخ الاحتياطي,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.",تحتوي النسخ الاحتياطية على لوحة القيادة وتكوين المظهر فقط. لا يتم تضمين تفاصيل الاتصال وأذونات التطبيق وحالة الموقع وسجل الإشعارات.,
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.",تحتوي النسخ الاحتياطية على لوحة القيادة وتكوين المظهر فقط. لا يتم تضمين تفاصيل الاتصال وأذونات التطبيق وحالة الموقع وسجل الإشعارات.,
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,تخطيط شريط الشارة,
 ui_bars_ad5fb3b,,Bars,الحانات,
 ui_batt_679d0aa,,Batt,بات,

@@ -27,6 +27,14 @@
         <item>Fiksna očitanja temperature i energije na češkom, slovačkom, grčkom, norveškom, švedskom i danskom, gdje su se brojke pokazivale pogrešno ili su mogle srušiti zaslon.</item>
         <item>Nešto loše napisano na vašem jeziku? Svaki je jezik sada jedna datoteka koju možete ispraviti na GitHubu, bez potrebe za kodom.</item>
     </string-array>
+    <string-array name="cr_whats_new_1_3_2">
+        <item>Skočni prozori kamere: kada se aktivira senzor pokreta, osobe ili zvona, HKI 7 prikazuje tu kameru uživo i zatvara je nakon isteka vremena. Postavite ih pod Postavke › Nadzorna ploča › Skočni prozori.</item>
+        <item>Novi čuvar zaslona za zidne tablete: nakon isteka vremena mirovanja sat na cijelom zaslonu s opcijskim vremenom, unutarnjom klimom, kalendarom i prečacima (Postavke › Čuvar zaslona).</item>
+        <item>Postavke › Uređaj može dodati uključivanje/isključivanje zaslona, svjetlinu, Wi-Fi i lokalne IP senzore ovom uređaju u Home Assistant.</item>
+        <item>Opcionalno podijelite kameru ovog tableta kao stream zaštićen tokenom na vašoj lokalnoj mreži, za generičku kameru u Home Assistant.</item>
+        <item>Sigurnosne kopije sada uključuju čuvar zaslona, skočni prozor kamere i postavke kamere uređaja.</item>
+    </string-array>
+
     <string-array name="cr_whats_new_1_3_1">
         <item>Ispravljeno: klizač termostata u prozoru klime zaglavio bi se nakon prve promjene dok se prozor ponovno ne otvori.</item>
         <item>Nove tipke + i − pokraj klizača termostata. Njihov korak (0,1, 0,5 ili 1 stupanj) odaberite u postavkama prozora.</item>

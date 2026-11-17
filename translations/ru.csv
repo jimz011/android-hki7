@@ -662,6 +662,11 @@ parcel_optional_field,,%1$s (optional),%1$s (необязательно),app fil
 parcel_field_postal_code,,Postal code,Почтовый индекс,
 parcel_field_direction,,Direction,Направление,
 parcel_field_country,,Country,Страна,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.","Всплывающие окна камеры: когда срабатывает датчик движения, присутствия человека или дверного звонка, HKI 7 показывает эту камеру в реальном времени и закрывает ее по истечении времени ожидания. Настройте их в «Настройки» > «Панель управления» > «Всплывающие окна».",don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).","Новая заставка для настенных планшетов: после простоя отображаются полноэкранные часы с возможностью выбора погоды, климата в помещении, календаря и ярлыков (Настройки › Заставка).",
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.","Настройки › Устройство может добавить включение/выключение экрана, яркость, Wi-Fi и локальные IP-датчики на это устройство в Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.","При желании можно поделиться камерой этого планшета в виде потока, защищенного токеном, в локальной сети для стандартной камеры в Home Assistant.",don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.","Резервные копии теперь включают заставку, всплывающее окно камеры и настройки камеры устройства.",
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,"Исправлено: ползунок термостата в окне климата зависал после первого изменения, пока окно не открывали заново.",
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","Новые кнопки + и − рядом с ползунком термостата. Шаг (0,1, 0,5 или 1 градус) выбирается в настройках окна.",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,"Комнаты могут показывать потребление электроэнергии: выберите датчики мощности в разделе Энергия настроек комнаты, и в заголовке появится 21°C / 45% / 440W.",
@@ -1791,7 +1796,7 @@ ui_backing_up_f600558,,Backing up…,Резервное копирование�
 ui_backspace_88d130a,,Backspace,Backspace,
 ui_backup_and_restore_a593246,,Backup and Restore,Резервное копирование и восстановление,
 ui_backup_dd96994,,Backup,Резервное копирование,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.","Резервные копии содержат только конфигурацию панели управления и внешнего вида. Сведения о подключении, разрешениях приложений, состоянии местоположения и истории уведомлений не включаются.",
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.","Резервные копии содержат только конфигурацию панели управления и внешнего вида. Сведения о подключении, разрешениях приложений, состоянии местоположения и истории уведомлений не включаются.",
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,Расположение панели значков,
 ui_bars_ad5fb3b,,Bars,Бары,
 ui_batt_679d0aa,,Batt,Батт,

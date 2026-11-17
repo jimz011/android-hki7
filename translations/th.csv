@@ -646,6 +646,11 @@ parcel_optional_field,,%1$s (optional),%1$s (ไม่บังคับ),app fi
 parcel_field_postal_code,,Postal code,รหัสไปรษณีย์,
 parcel_field_direction,,Direction,ทิศทาง,
 parcel_field_country,,Country,ประเทศ,
+cr_whats_new_1_3_2,1,"Camera popups: when a motion, person or doorbell sensor fires, HKI 7 shows that camera live and closes it after a timeout. Set them up under Settings › Dashboard › Popups.",ป๊อปอัปของกล้อง: เมื่อมีเซ็นเซอร์ตรวจจับการเคลื่อนไหว บุคคล หรือกริ่งประตู HKI 7 แสดงว่ากล้องนั้นทำงานอยู่และปิดลงหลังจากหมดเวลา ตั้งค่าได้ในการตั้งค่า > แดชบอร์ด > ป๊อปอัป,don't translate HKI 7
+cr_whats_new_1_3_2,2,"New screensaver for wall tablets: after an idle timeout a full-screen clock with optional weather, indoor climate, calendar and shortcuts (Settings › Screensaver).",สกรีนเซฟเวอร์ใหม่สำหรับแท็บเล็ตติดผนัง: หลังจากหมดเวลาที่ไม่ได้ใช้งาน นาฬิกาแบบเต็มหน้าจอพร้อมตัวเลือกสภาพอากาศ สภาพอากาศภายในอาคาร ปฏิทิน และทางลัด (การตั้งค่า › สกรีนเซฟเวอร์),
+cr_whats_new_1_3_2,3,"Settings › Device can add screen on/off, brightness, Wi-Fi and local IP sensors to this device in Home Assistant.",การตั้งค่า > อุปกรณ์สามารถเพิ่มการเปิด/ปิดหน้าจอ ความสว่าง Wi-Fi และเซ็นเซอร์ IP ในเครื่องให้กับอุปกรณ์นี้ใน Home Assistant,don't translate Home Assistant
+cr_whats_new_1_3_2,4,"Optionally share this tablet's camera as a token-protected stream on your local network, for a Generic Camera in Home Assistant.",เลือกแชร์กล้องของแท็บเล็ตนี้เป็นสตรีมที่มีการป้องกันโทเค็นบนเครือข่ายท้องถิ่นของคุณสำหรับกล้องทั่วไปใน Home Assistant,don't translate Home Assistant
+cr_whats_new_1_3_2,5,"Backups now include screensaver, camera popup and device camera settings.",ขณะนี้การสำรองข้อมูลรวมถึงสกรีนเซฟเวอร์ ป๊อปอัปของกล้อง และการตั้งค่ากล้องของอุปกรณ์,
 cr_whats_new_1_3_1,1,Fixed the thermostat slider in the climate popup freezing after the first change until the popup was reopened.,แก้ไขแล้ว: แถบเลื่อนเทอร์โมสตัทในหน้าต่างสภาพอากาศค้างหลังการเปลี่ยนครั้งแรกจนกว่าจะเปิดหน้าต่างใหม่,
 cr_whats_new_1_3_1,2,"New + and − buttons beside the thermostat slider. Choose their step (0.1, 0.5 or 1 degree) in the popup settings.","ปุ่ม + และ − ใหม่ข้างแถบเลื่อนเทอร์โมสตัท เลือกระยะขั้น (0.1, 0.5 หรือ 1 องศา) ได้ในการตั้งค่าหน้าต่าง",
 cr_whats_new_1_3_1,3,Rooms can show their power usage: pick power sensors under Room status › Energy and the header reads 21°C / 45% / 440W.,ห้องสามารถแสดงการใช้ไฟฟ้าได้: เลือกเซ็นเซอร์กำลังไฟในส่วนพลังงานของการตั้งค่าห้อง แล้วส่วนหัวจะแสดง 21°C / 45% / 440W,
@@ -1751,7 +1756,7 @@ ui_backing_up_f600558,,Backing up…,กำลังสำรองข้อม�
 ui_backspace_88d130a,,Backspace,แบ็คสเปซ,
 ui_backup_and_restore_a593246,,Backup and Restore,สำรองและกู้คืน,
 ui_backup_dd96994,,Backup,สำรองข้อมูล,
-ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard and appearance configuration only. Connection details, app permissions, location state, and notification history are not included.",ข้อมูลสำรองประกอบด้วยแดชบอร์ดและการกำหนดค่าลักษณะที่ปรากฏเท่านั้น ไม่รวมรายละเอียดการเชื่อมต่อ การอนุญาตแอป สถานะตำแหน่ง และประวัติการแจ้งเตือน,
+ui_backups_contain_dashboard_and_appearance_configuration_onl_d5856be,,"Backups contain dashboard, appearance, screensaver, camera-popup and device-camera configuration. Connection details, app permissions, location state, and notification history are not included.",ข้อมูลสำรองประกอบด้วยแดชบอร์ดและการกำหนดค่าลักษณะที่ปรากฏเท่านั้น ไม่รวมรายละเอียดการเชื่อมต่อ การอนุญาตแอป สถานะตำแหน่ง และประวัติการแจ้งเตือน,
 ui_badge_bar_layout_4b4dfdd,,Badge bar layout,เค้าโครงแถบป้าย,
 ui_bars_ad5fb3b,,Bars,บาร์,
 ui_batt_679d0aa,,Batt,แบต,
